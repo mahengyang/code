@@ -3,18 +3,18 @@ options(digits=15)
 args <- commandArgs()
 tsung_folder_length <- 14
 tsung_folder <- args[6:length(args)]
+result_path <- getwd()
 getAllData <- function(data_file){
   tsung_request <- do.call(rbind, lapply(X=tsung_folder,FUN=function(x){ 
-  	  print(x)
-      request_files <- paste(x,'/data/',data_file, sep='')
-      temp <- read.table(file=request_files,header=F)
-	    temp$code <- substr(x,nchar(x) - tsung_folder_length, nchar(x))
+      tsung_file <- paste(x,'/data/',data_file, sep='')
+      print(tsung_file)
+      temp <- read.table(file=tsung_file,header=F)
+      temp$code <- substr(x,nchar(x) - tsung_folder_length, nchar(x))
       temp
     }))
 }
 tsung_200 <- getAllData('200.txt')
 tsung_request <- getAllData('request.txt')
-result_path <- substr(tsung_folder[1], 1, nchar(tsung_folder[1]) - tsung_folder_length)
 ##perfs_rate
 ggplot(tsung_200,aes(x=V1, y=V2, colour=code)) +
   geom_line() +
@@ -24,6 +24,7 @@ ggplot(tsung_200,aes(x=V1, y=V2, colour=code)) +
   guides(colour = guide_legend(title = 'tsung test number'))
 result_jpg <- paste(result_path, '/tsung_http_code_rate.jpg', sep='')
 ggsave(filename=result_jpg,width=15,height=10)
+print(result_jpg)
 
 ##http_code_total
 ggplot(tsung_200,aes(x=V1, y=V3, colour=code)) +
@@ -34,7 +35,7 @@ ggplot(tsung_200,aes(x=V1, y=V3, colour=code)) +
   guides(colour = guide_legend(title = 'tsung test number'))
 result_jpg <- paste(result_path, '/tsung_http_code_total.jpg', sep='')
 ggsave(filename=result_jpg,width=15,height=10)
-
+print(result_jpg)
 ##
 ggplot(data=tsung_request,aes(x=V1,y=V3,colour=code)) + 
   geom_line() + 
@@ -44,7 +45,7 @@ ggplot(data=tsung_request,aes(x=V1,y=V3,colour=code)) +
   guides(colour = guide_legend(title = 'tsung test number'))
 result_jpg <- paste(result_path, '/tsung_perfs_mean.jpg', sep='')
 ggsave(filename=result_jpg,width=15,height=10)
-
+print(result_jpg)
 ggplot(data=tsung_request,aes(x=V1,y=V2,colour=code)) + 
   geom_line() +
   ggtitle('response number (10s)') +
@@ -53,3 +54,4 @@ ggplot(data=tsung_request,aes(x=V1,y=V2,colour=code)) +
   guides(colour = guide_legend(title = 'tsung test number'))
 result_jpg <- paste(result_path, '/tsung_perfs_rate.jpg', sep='')
 ggsave(filename=result_jpg,width=15,height=10)
+print(result_jpg)
