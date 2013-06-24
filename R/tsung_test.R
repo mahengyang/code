@@ -26,20 +26,18 @@ save_result <- function(result_name) {
   ggsave(filename=result_jpg,width=15,height=10)
   print(result_jpg)
 }
-##perfs_rate
 ggplot(tsung_200,aes(x=V1, y=V2, colour=code)) +
   ggtitle('http code number (200)') +
   ylab('response number') +
   common
 save_result('http_code_rate')
 
-##http_code_total
 ggplot(tsung_200,aes(x=V1, y=V3, colour=code)) +
   ggtitle('http code total(200)') +
   ylab('total response number') +
   common
 save_result('http_code_total')
-##
+
 ggplot(data=tsung_request,aes(x=V1,y=V3,colour=code)) + 
   ggtitle('response time') +
   ylab('response time(ms)') +
