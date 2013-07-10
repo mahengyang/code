@@ -1,4 +1,11 @@
 #!/bin/bash
+processName="jmeter"
+pid=`ps aux | grep $processName | grep -v grep | awk '{print $2}'`
+if [ $pid ]; then
+  echo "warning!!! a jmeter process is running,please wait" | tee -a $HOME/mahengyang
+  exit 1
+fi
+
 while [ $# -gt 0 ]; do
   case "$1" in
     -j|--jmeterFile)
@@ -110,7 +117,7 @@ paramJmeter=( \
 cp $jmeterFile $reportPath
 currentJmeterFile="$reportPath/jmeter_test.jmx"
 function replace(){
-  echo "$1:$2"
+  echo "$1:$2" | tee -a "$reportPath/test.env"
   #change / to \/ for sed 
   local val=${2//\//\\\/}
   sed -i "s/${1}/${val}/" $currentJmeterFile
