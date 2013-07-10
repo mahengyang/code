@@ -3,28 +3,36 @@ while [ $# -gt 0 ]; do
   case "$1" in
     -j|--jmeterFile)
             jmeterFile=$2
-            shift 2 ;;
+            shift 
+            shift ;;
     -u|--user)
             user=$2
-            shift 2 ;;
+            shift 
+            shift ;;
     -r|--ramptime)
             ramptime=$2
-            shift 2 ;;
+            shift 
+            shift ;;
     -t|--thinktime)
             thinktime=$2
-            shift 2 ;;
+            shift 
+            shift ;;
     -s|--server)
             server=$2
-            shift 2 ;;
+            shift 
+            shift ;;
     -p|--port)
             port=$2
-            shift 2 ;;
+            shift 
+            shift ;;
     -a|--api)
             api=$2
-            shift 2 ;;
+            shift 
+            shift ;;
     -s|--method)
             method=$2
-            shift 2 ;;
+            shift 
+            shift ;;
     -h|--help)
             echo "-j | --jmeterFile : jmeter test file jmx"
             echo "-u | --user: total user number"
@@ -41,6 +49,7 @@ while [ $# -gt 0 ]; do
       ;;
   esac
 done
+
 #env
 jmeterHome="/usr/local/bin/apache-jmeter-2.9"
 jmeter="$jmeterHome/bin/jmeter"
@@ -49,8 +58,10 @@ CMDRunner="$jmeterHome/lib/ext/CMDRunner.jar"
 
 currentTest=`date +%Y%m%d%H%M%S`
 reportPath="$HOME/jmeterReport/$currentTest"
+mkdir -p $reportPath
 jmeterLog="$reportPath/request.jtl"
 jmeterJtl="$reportPath/PerfMon.jtl"
+
 #set default parameters
 jmeterFile=${jmeterFile:="$HOME/jmeter_test.jmx"}
 user=${user:="3000"}
@@ -61,31 +72,32 @@ port=${port:="9002"}
 api=${api:="/v2/locations/checkin"}
 method=${method:="POST"}
 
+#key of paramJmeter is nodname in jmeter_test.jmx file
 declare -A paramJmeter
 paramJmeter=( \
-  ["$user"]="ThreadGroup.num_threads" \
-  ["$ramptime"]="ThreadGroup.ramp_time" \
-  ["$thinktime"]="ConstantTimer.delay" \
-  ["$server"]="HTTPSampler.domain" \
-  ["$port"]="HTTPSampler.port" \
-  ["$api"]="HTTPSampler.path" \
-  ["$method"]="HTTPSampler.method" \
-  ["$server"]="Cookie.domain" \
+  ["ThreadGroup.num_threads"]=$user \
+  ["ThreadGroup.ramp_time"]=$ramptime \
+  ["ConstantTimer.delay"]=$thinktime \
+  ["HTTPSampler.domain"]=$server \
+  ["HTTPSampler.port"]=$port \
+  ["HTTPSampler.path"]=$api \
+  ["HTTPSampler.method"]=$method \
+  ["Cookie.domain"]=$server \
   )
 
-echo "jmeterFile:$jmeterFile totalUser:$user ramptime:$ramptime thinktime:$thinktime"
 #deal with jmx file
 cp $jmeterFile $reportPath
-jmeterFile="$reportPath/jmeter_test.jmx"
+currentJmeterFile="$reportPath/jmeter_test.jmx"
 function replace(){
   echo $1,$2
-  sed -i 's/"$1".*</"$1"">"$2"</' $jmeterFile
+  sed -i 's/"$1".*</"$1"">"$2"</' $currentJmeterFile
 }
-for key in ${!paramJmeter[*]} do
-  $(replace $key ${paramJmeter[$key]})
+for key in ${!paramJmeter[*]}
+do
+  replace $key ${paramJmeter[$key]}
 done
 #start jmeter
-#$jmeter -n -t $jmeterFile -l $jmeterLog &
+#$jmeter -n -t $currentJmeterFile -l $jmeterLog &
 #
 #wait %1
 #
