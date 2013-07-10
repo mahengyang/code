@@ -110,7 +110,7 @@ paramJmeter=( \
 cp $jmeterFile $reportPath
 currentJmeterFile="$reportPath/jmeter_test.jmx"
 function replace(){
-  echo $1,$2
+  echo "$1:$2"
   #change / to \/ for sed 
   local val=${2//\//\\\/}
   sed -i "s/${1}/${val}/" $currentJmeterFile
