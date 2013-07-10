@@ -17,8 +17,8 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">50</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">100</stringProp>
+        <stringProp name="ThreadGroup.num_threads">totalUser</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">totalTime</stringProp>
         <longProp name="ThreadGroup.start_time">1371199764000</longProp>
         <longProp name="ThreadGroup.end_time">1371199764000</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
@@ -58,14 +58,14 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">LDKJSERVER0007</stringProp>
-          <stringProp name="HTTPSampler.port">9002</stringProp>
+          <stringProp name="HTTPSampler.domain">server</stringProp>
+          <stringProp name="HTTPSampler.port">httpPort</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/v2/locations/checkin</stringProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">httpPath</stringProp>
+          <stringProp name="HTTPSampler.method">httpMethod</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
@@ -74,15 +74,15 @@
           <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
         </HTTPSamplerProxy>
         <hashTree/>
-        <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="thinktime" enabled="true">
-          <stringProp name="ConstantTimer.delay">10000</stringProp>
+        <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="ConstantTimer" enabled="true">
+          <stringProp name="ConstantTimer.delay">thinktime</stringProp>
         </ConstantTimer>
         <hashTree/>
         <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="Cookie" enabled="true">
           <collectionProp name="CookieManager.cookies">
             <elementProp name="authToken" elementType="Cookie" testname="authToken">
               <stringProp name="Cookie.value">a2a2e9aab78774d8ea3b64b19d5506f9</stringProp>
-              <stringProp name="Cookie.domain">LDKJSERVER0007</stringProp>
+              <stringProp name="Cookie.domain">server</stringProp>
               <stringProp name="Cookie.path">/</stringProp>
               <boolProp name="Cookie.secure">false</boolProp>
               <longProp name="Cookie.expires">0</longProp>
@@ -101,70 +101,6 @@
           </collectionProp>
           <boolProp name="CookieManager.clearEachIteration">true</boolProp>
         </CookieManager>
-        <hashTree/>
-        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>false</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
-        <hashTree/>
-        <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Aggregate Report" enabled="true">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>false</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
         <hashTree/>
         <kg.apc.jmeter.perfmon.PerfMonCollector guiclass="kg.apc.jmeter.vizualizers.PerfMonGui" testclass="kg.apc.jmeter.perfmon.PerfMonCollector" testname="Metrics Collector" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
@@ -195,56 +131,56 @@
               <bytes>true</bytes>
             </value>
           </objProp>
-          <stringProp name="filename">/tmp/PerfMon.jtl</stringProp>
+          <stringProp name="filename">jtlFile</stringProp>
           <longProp name="interval_grouping">1000</longProp>
           <boolProp name="graph_aggregated">false</boolProp>
           <stringProp name="include_sample_labels"></stringProp>
           <stringProp name="exclude_sample_labels"></stringProp>
           <collectionProp name="metricConnections">
             <collectionProp name="921074154">
-              <stringProp name="-851256601">LDKJSERVER0007</stringProp>
+              <stringProp name="-851256601">server</stringProp>
               <stringProp name="1600768">4444</stringProp>
               <stringProp name="66952">CPU</stringProp>
               <stringProp name="-1740951090">label=combined</stringProp>
             </collectionProp>
             <collectionProp name="2121908036">
-              <stringProp name="-851256601">LDKJSERVER0007</stringProp>
+              <stringProp name="-851256601">server</stringProp>
               <stringProp name="1600768">4444</stringProp>
               <stringProp name="-1993889503">Memory</stringProp>
               <stringProp name="-278579165">usedperc</stringProp>
             </collectionProp>
             <collectionProp name="-587327194">
-              <stringProp name="-851256601">LDKJSERVER0007</stringProp>
+              <stringProp name="-851256601">server</stringProp>
               <stringProp name="1600768">4444</stringProp>
               <stringProp name="-274342153">Network I/O</stringProp>
               <stringProp name="0"></stringProp>
             </collectionProp>
             <collectionProp name="1189342041">
-              <stringProp name="-851256601">LDKJSERVER0007</stringProp>
+              <stringProp name="-851256601">server</stringProp>
               <stringProp name="1600768">4444</stringProp>
               <stringProp name="2112896831">Disks I/O</stringProp>
               <stringProp name="0"></stringProp>
             </collectionProp>
             <collectionProp name="-712547063">
-              <stringProp name="-851256601">LDKJSERVER0007</stringProp>
+              <stringProp name="-851256601">server</stringProp>
               <stringProp name="1600768">4444</stringProp>
               <stringProp name="82881">TCP</stringProp>
               <stringProp name="0"></stringProp>
             </collectionProp>
             <collectionProp name="-1373220112">
-              <stringProp name="-851256601">LDKJSERVER0007</stringProp>
+              <stringProp name="-851256601">server</stringProp>
               <stringProp name="1600768">4444</stringProp>
               <stringProp name="73589">JMX</stringProp>
-              <stringProp name="-1041958359">url=LDKJSERVER0007\:19002:label=gc:gc-time</stringProp>
+              <stringProp name="-1041958359">url=server\:jmxPort:label=gc:gc-time</stringProp>
             </collectionProp>
             <collectionProp name="964315230">
               <stringProp reference="../../collectionProp[6]/stringProp"/>
               <stringProp reference="../../collectionProp[6]/stringProp[2]"/>
               <stringProp name="73589">JMX</stringProp>
-              <stringProp name="-403953958">url=LDKJSERVER0007\:19002:label=heap:memory-usage</stringProp>
+              <stringProp name="-403953958">url=server\:jmxPort:label=heap:memory-usage</stringProp>
             </collectionProp>
             <collectionProp name="-1890535872">
-              <stringProp name="-851256601">LDKJSERVER0007</stringProp>
+              <stringProp name="-851256601">server</stringProp>
               <stringProp name="1600768">4444</stringProp>
               <stringProp name="66952">CPU</stringProp>
               <stringProp name="1447445530">label=sy:system</stringProp>
