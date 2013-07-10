@@ -37,6 +37,10 @@ while [ $# -gt 0 ]; do
             jmxPort=$2
             shift 
             shift ;;
+    -l|--loopCount)
+            loopCount=$2
+            shift 
+            shift ;;
     -h|--help)
             echo "-j | --jmeterFile : jmeter test file jmx"
             echo "-u | --user: total user number"
@@ -76,6 +80,7 @@ port=${port:="9002"}
 api=${api:="/v2/locations/checkin"}
 method=${method:="POST"}
 jmxPort=${jmxPort:="19002"}
+loopCount=${loopCount:="50"}
 
 #key of paramJmeter is nodname in jmeter_test.jmx file
 declare -A paramJmeter
@@ -89,6 +94,7 @@ paramJmeter=( \
   ["httpMethod"]=$method \
   ["jtlFile"]=$jmeterJtl \
   ["jmxPort"]=$jmxPort \
+  ["loopCount"]=$loopCount \
   )
 
 #deal with jmx file
@@ -96,23 +102,26 @@ cp $jmeterFile $reportPath
 currentJmeterFile="$reportPath/jmeter_test.jmx"
 function replace(){
   echo $1,$2
-  sed -i 's/"$1"/"$2"/' $currentJmeterFile
+  #change / to \/ for sed 
+  local val=${2//\//\\\/}
+  sed -i "s/${1}/${val}/" $currentJmeterFile
 }
 for key in ${!paramJmeter[*]}
 do
   replace $key ${paramJmeter[$key]}
 done
 #start jmeter
-$jmeter -n -t $currentJmeterFile -l $jmeterLog &
-
-wait %1
-
-reports="AggregateReport ThreadsStateOverTime BytesThroughputOverTime HitsPerSecond LatenciesOverTime ResponseCodesPerSecond ResponseTimesDistribution ResponseTimesOverTime ResponseTimesPercentiles ThroughputOverTime ThroughputVsThreads TimesVsThreads TransactionsPerSecond PageDataExtractorOverTime"
-#generate report
-for report in $reports 
-do
-   echo "create report: $report"
-   java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/$report.png" --input-jtl $jmeterLog --plugin-type $report --width 1200 --height 700 > /dev/null 2>&1
-done
-java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/PerfMon.png" --input-jtl $jmeterJtl --plugin-type PerfMon --width 3200 --height 700 > /dev/null 2>&1
-java -jar $CMDRunner --tool Reporter --generate-csv "$reportPath/PerfMon.csv" --input-jtl $jmeterJtl --plugin-type PerfMon > /dev/null 2>&1
+#$jmeter -n -t $currentJmeterFile -l $jmeterLog &
+#
+#wait %1
+#
+#reports="AggregateReport ThreadsStateOverTime BytesThroughputOverTime HitsPerSecond LatenciesOverTime ResponseCodesPerSecond ResponseTimesDistribution ResponseTimesOverTime ResponseTimesPercentiles ThroughputOverTime ThroughputVsThreads TimesVsThreads TransactionsPerSecond PageDataExtractorOverTime"
+##generate report
+#for report in $reports 
+#do
+#   echo "create report: $report"
+#   java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/$report.png" --input-jtl $jmeterLog --plugin-type $report --width 1200 --height 700 > /dev/null 2>&1
+#done
+#echo "create report: PerfMon"
+#java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/PerfMon.png" --input-jtl $jmeterJtl --plugin-type PerfMon --width 3200 --height 700 > /dev/null 2>&1
+#java -jar $CMDRunner --tool Reporter --generate-csv "$reportPath/PerfMon.csv" --input-jtl $jmeterJtl --plugin-type PerfMon > /dev/null 2>&1
