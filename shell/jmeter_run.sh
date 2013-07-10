@@ -29,7 +29,7 @@ while [ $# -gt 0 ]; do
             api=$2
             shift 
             shift ;;
-    -s|--method)
+    -m|--method)
             method=$2
             shift 
             shift ;;
@@ -46,7 +46,16 @@ while [ $# -gt 0 ]; do
             echo "-u | --user: total user number"
             echo "-r | --ramptime: times used to generate user"
             echo "-t | --thinktime: the inteval time between two request"
-            shift ;;
+            echo "-l | --loopCount: Each user's request number"
+            echo "-s | --server: play server"
+            echo "-p | --port: play server http port"
+            echo "-a | --api: api e.g. /stest5"
+            echo "-m | --method: POST/GET"
+            echo "-x | --jmxPort: jmxPort used in play server,to monitor gc time"
+            echo "-h | --help: print this help"
+            shift
+            exit 1
+            ;;
     --)
       shift
       break
@@ -111,17 +120,17 @@ do
   replace $key ${paramJmeter[$key]}
 done
 #start jmeter
-#$jmeter -n -t $currentJmeterFile -l $jmeterLog &
-#
-#wait %1
-#
-#reports="AggregateReport ThreadsStateOverTime BytesThroughputOverTime HitsPerSecond LatenciesOverTime ResponseCodesPerSecond ResponseTimesDistribution ResponseTimesOverTime ResponseTimesPercentiles ThroughputOverTime ThroughputVsThreads TimesVsThreads TransactionsPerSecond PageDataExtractorOverTime"
-##generate report
-#for report in $reports 
-#do
-#   echo "create report: $report"
-#   java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/$report.png" --input-jtl $jmeterLog --plugin-type $report --width 1200 --height 700 > /dev/null 2>&1
-#done
-#echo "create report: PerfMon"
-#java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/PerfMon.png" --input-jtl $jmeterJtl --plugin-type PerfMon --width 3200 --height 700 > /dev/null 2>&1
-#java -jar $CMDRunner --tool Reporter --generate-csv "$reportPath/PerfMon.csv" --input-jtl $jmeterJtl --plugin-type PerfMon > /dev/null 2>&1
+$jmeter -n -t $currentJmeterFile -l $jmeterLog &
+
+wait %1
+
+reports="AggregateReport ThreadsStateOverTime BytesThroughputOverTime HitsPerSecond LatenciesOverTime ResponseCodesPerSecond ResponseTimesDistribution ResponseTimesOverTime ResponseTimesPercentiles ThroughputOverTime ThroughputVsThreads TimesVsThreads TransactionsPerSecond PageDataExtractorOverTime"
+#generate report
+for report in $reports 
+do
+   echo "create report: $report"
+   java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/$report.png" --input-jtl $jmeterLog --plugin-type $report --width 1200 --height 700 > /dev/null 2>&1
+done
+echo "create report: PerfMon"
+java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/PerfMon.png" --input-jtl $jmeterJtl --plugin-type PerfMon --width 3200 --height 700 > /dev/null 2>&1
+java -jar $CMDRunner --tool Reporter --generate-csv "$reportPath/PerfMon.csv" --input-jtl $jmeterJtl --plugin-type PerfMon > /dev/null 2>&1
