@@ -42,16 +42,16 @@ while [ $# -gt 0 ]; do
             shift 
             shift ;;
     -h|--help)
-            echo "-j | --jmeterFile : jmeter test file jmx"
-            echo "-u | --user: total user number"
-            echo "-r | --ramptime: times used to generate user"
-            echo "-t | --thinktime: the inteval time between two request"
-            echo "-l | --loopCount: Each user's request number"
-            echo "-s | --server: play server"
-            echo "-p | --port: play server http port"
-            echo "-a | --api: api e.g. /stest5"
-            echo "-m | --method: POST/GET"
-            echo "-x | --jmxPort: jmxPort used in play server,to monitor gc time"
+            echo "-j | --jmeterFile : jmeter test file jmx,default $HOME/jmeter_test.jmx"
+            echo "-u | --user: total user number,default 3000"
+            echo "-r | --ramptime: times used to generate user,default 100s"
+            echo "-t | --thinktime: the inteval time between two request,default 10s"
+            echo "-l | --loopCount: Each user's request number,default 50"
+            echo "-s | --server: play server,default LDKJSERVER0007"
+            echo "-p | --port: play server http port,default 9002"
+            echo "-a | --api: api e.g. /stest5,default /v2/locations/checkin"
+            echo "-m | --method: POST/GET,default POST"
+            echo "-x | --jmxPort: jmxPort used in play server,to monitor gc time,default 19002"
             echo "-h | --help: print this help"
             shift
             exit 1
