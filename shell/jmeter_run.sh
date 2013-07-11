@@ -1,8 +1,11 @@
 #!/bin/bash
 processName="jmeter"
 pid=`ps aux | grep $processName | grep -v grep | awk '{print $2}'`
-if [ $pid ]; then
-  echo "warning!!! a jmeter process is running,please wait" | tee -a $HOME/mahengyang
+#convert from string to array
+pid=($pid)
+# pid length more then 2 exit
+if [ ${#pid[*]} -gt 2 ]; then
+  echo "warning!!! a jmeter process is running,please wait"
   exit 1
 fi
 
