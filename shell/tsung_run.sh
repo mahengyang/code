@@ -1,4 +1,16 @@
 #!/bin/bash
+defaultTestFile="$HOME/tsung_test.xml"
+defaultUser=20
+defaultDuration=100
+# s
+defaultThinktime=1
+defaultServer="LDKJSERVER0007"
+defaultPort=9002
+defaultApi="/v2/locations/checkin"
+defaultMethod="POST"
+defaultLoopCount=50
+defaultMaxuser=5000
+
 while [ $# -gt 0 ]; do
   case "$1" in
     -f|--testFile)
@@ -42,16 +54,16 @@ while [ $# -gt 0 ]; do
             shift 
             shift ;;
     -h|--help)
-            echo "-t | --testFile: tsung test file xml,default $HOME/tsung_test.xml"
-            echo "-u | --user: user number per second, default 20"
-            echo "-x | --maxuser: max user number, default 5000"
-            echo "-d | --duration: times used to generate user,default 100s"
-            echo "-t | --thinktime: the inteval time between two request,default 1s"
-            echo "-l | --loopCount: Each user's request number,default 50"
-            echo "-s | --server: play server,default LDKJSERVER0007"
-            echo "-p | --port: play server http port,default 9002"
-            echo "-a | --api: api, default /v2/locations/checkin"
-            echo "-m | --method: POST/GET,default POST"
+            echo "-f | --testFile: tsung test file xml,default $defaultTestFile"
+            echo "-u | --user: user number per second, default $defaultUser"
+            echo "-x | --maxuser: max user number, default $defaultMaxuser"
+            echo "-d | --duration: times used to generate user,default $defaultDuration s"
+            echo "-t | --thinktime: the inteval time between two request,default defaultThinktime s"
+            echo "-l | --loopCount: Each user's request number,default $defaultLoopCount"
+            echo "-s | --server: play server,default $defaultServer"
+            echo "-p | --port: play server http port,default $defaultPort"
+            echo "-a | --api: api, default $defaultApi"
+            echo "-m | --method: POST/GET,default $defaultMethod"
             echo "-h | --help: print this help"
             shift
             exit 1
@@ -78,16 +90,16 @@ fi
 
 #env
 #set default parameters
-testFile=${testFile:="$HOME/tsung_test.xml"}
-user=${user:="20"}
-duration=${duration:="100"}
-thinktime=${thinktime:="1"}
-server=${server:="LDKJSERVER0007"}
-port=${port:="9002"}
-api=${api:="/v2/locations/checkin"}
-method=${method:="POST"}
-loopCount=${loopCount:="50"}
-maxuser=${maxuser:="5000"}
+testFile=${testFile:=$defaultTestFile}
+user=${user:=$defaultUser}
+duration=${duration:=$defaultDuration}
+thinktime=${thinktime:=$defaultThinktime}
+server=${server:=$defaultServer}
+port=${port:=$defaultPort}
+api=${api:=$defaultApi}
+method=${method:=$defaultMethod}
+loopCount=${loopCount:=$defaultLoopCount}
+maxuser=${maxuser:=$defaultMaxuser}
 
 #key of params is nodname in tusng_test.xml file
 declare -A params

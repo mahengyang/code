@@ -1,9 +1,23 @@
 #!/bin/bash
+#default parameters
+defaultTestFile="$HOME/jmeter_test.jmx"
+defaultUser=3000
+#s
+defaultRamptime=100
+#ms
+defaultThinktime=10000
+defaultServer="LDKJSERVER0007"
+defaultPort=9002
+defaultApi="/v2/locations/checkin"
+defaultMethod="POST"
+#1+port
+defaultJmxPort="1$defaultPort"
+defaultLoopCount=50
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    -j|--jmeterFile)
-            jmeterFile=$2
+    -j|--testFile)
+            testFile=$2
             shift 
             shift ;;
     -u|--user)
@@ -43,16 +57,16 @@ while [ $# -gt 0 ]; do
             shift 
             shift ;;
     -h|--help)
-            echo "-j | --jmeterFile : jmeter test file jmx,default $HOME/jmeter_test.jmx"
-            echo "-u | --user: total user number,default 3000"
-            echo "-r | --ramptime: times used to generate user,default 100s"
-            echo "-t | --thinktime: the inteval time between two request,default 10000ms"
-            echo "-l | --loopCount: Each user's request number,default 50"
-            echo "-s | --server: play server,default LDKJSERVER0007"
-            echo "-p | --port: play server http port,default 9002"
-            echo "-a | --api: api, default /v2/locations/checkin"
-            echo "-m | --method: POST/GET,default POST"
-            echo "-x | --jmxPort: jmxPort used in play server,to monitor gc time,default 19002"
+            echo "-f | --testFile : jmeter test file jmx,default $defaultTestFile"
+            echo "-u | --user: total user number,default $defaultUser"
+            echo "-r | --ramptime: times used to generate user,default $defaultRamptime s"
+            echo "-t | --thinktime: the inteval time between two request,default $defaultThinktime ms"
+            echo "-l | --loopCount: Each user's request number,default $defaultLoopCount"
+            echo "-s | --server: play server,default $defaultServer"
+            echo "-p | --port: play server http port,default $defaultPort"
+            echo "-a | --api: api, default $defaultApi"
+            echo "-m | --method: POST/GET,default $defaultMethod"
+            echo "-x | --jmxPort: jmxPort used in play server,to monitor gc time,default $defaultJmxPort"
             echo "-h | --help: print this help"
             shift
             exit 1
@@ -89,16 +103,16 @@ jmeterLog="$reportPath/request.jtl"
 jmeterJtl="$reportPath/PerfMon.jtl"
 
 #set default parameters
-jmeterFile=${jmeterFile:="$HOME/jmeter_test.jmx"}
-user=${user:="3000"}
-ramptime=${ramptime:="100"}
-thinktime=${thinktime:="10000"}
-server=${server:="LDKJSERVER0007"}
-port=${port:="9002"}
-api=${api:="/v2/locations/checkin"}
-method=${method:="POST"}
-jmxPort=${jmxPort:="19002"}
-loopCount=${loopCount:="50"}
+testFile=${testFile:=$defaultTestFile}
+user=${user:=$defaultUser}
+ramptime=${ramptime:=$defaultRamptime}
+thinktime=${thinktime:=$defaultThinktime}
+server=${server:=$defaultServer}
+port=${port:=$defaultPort}
+api=${api:=$defaultApi}
+method=${method:=$defaultMethod}
+jmxPort=${jmxPort:=$defaultJmxPort}
+loopCount=${loopCount:=$defaultLoopCount}
 
 #key of paramJmeter is nodname in jmeter_test.jmx file
 declare -A paramJmeter
@@ -116,20 +130,20 @@ paramJmeter=( \
   )
 
 #deal with jmx file
-cp $jmeterFile $reportPath
-currentJmeterFile="$reportPath/jmeter_test.jmx"
+cp $testFile $reportPath
+currentTestFile="$reportPath/jmeter_test.jmx"
 function replace(){
   echo "$1:$2" | tee -a "$reportPath/test.env"
   #change / to \/ for sed 
   local val=${2//\//\\\/}
-  sed -i "s/@${1}/${val}/" $currentJmeterFile
+  sed -i "s/@${1}/${val}/" $currentTestFile
 }
 for key in ${!paramJmeter[*]}
 do
   replace $key ${paramJmeter[$key]}
 done
 #start jmeter
-$jmeter -n -t $currentJmeterFile -l $jmeterLog &
+$jmeter -n -t $currentTestFile -l $jmeterLog &
 
 wait %1
 

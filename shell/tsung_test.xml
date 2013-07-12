@@ -29,10 +29,10 @@
         </setdynvars>
         <request>
           <http url="@api" method="@method" contents='{"u":"a","mcc":460,"n":"a","by":0,"mnc":1,"lnt":116.345031,"cid":4936921,"lat":39.980952,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}' version="1.1">
-            <http_header name="Authorization" value="226ec1f37625590b6291f8501fde7d1f"/>
+            <http_header name="Authorization" value="def7c5b70f04287effaaa402ecf9cd51"/>
             <http_header name="X-Devid" value="0"/>
             <http_header name="X-UserTag" value="999901999999"/>
-            <add_cookie key="AuthToken" value="b98459c57646150fb79fbe43ed0ed164"/>
+            <add_cookie key="AuthToken" value="a2a2e9aab78774d8ea3b64b19d5506f9"/>
             <add_cookie key="Path" value="/"/>
           </http>
         </request>
