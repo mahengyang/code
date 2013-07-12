@@ -15,10 +15,10 @@
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">loopCount</stringProp>
+          <stringProp name="LoopController.loops">@loopCount</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">totalUser</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">totalTime</stringProp>
+        <stringProp name="ThreadGroup.num_threads">@totalUser</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">@totalTime</stringProp>
         <longProp name="ThreadGroup.start_time">1371199764000</longProp>
         <longProp name="ThreadGroup.end_time">1371199764000</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
@@ -53,19 +53,19 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;u&quot;:&quot;${__Random(1,9999,id)}&quot;,&quot;mcc&quot;:-1,&quot;n&quot;:&quot;LT18in&quot;,&quot;by&quot;:${__Random(0,1,id)},&quot;mnc&quot;:-1,&quot;lnt&quot;:${__javaScript(Math.random().toFixed(6))},&quot;cid&quot;:-1,&quot;lat&quot;:${__javaScript(Math.random().toFixed(6) + 39)},&quot;lac&quot;:-1,&quot;dId&quot;:&quot;3585060486612885CB524B4175D&quot;,&quot;x&quot;:&quot;1050-mwmgd-5CB524B4175D-5927403794034853934-false&quot;}</stringProp>
+                <stringProp name="Argument.value">{&quot;u&quot;:&quot;a&quot;,&quot;mcc&quot;:-1,&quot;n&quot;:&quot;LT18in&quot;,&quot;by&quot;:0,&quot;mnc&quot;:-1,&quot;lnt&quot;:116.344722,&quot;cid&quot;:-1,&quot;lat&quot;:39.978944,&quot;lac&quot;:-1,&quot;dId&quot;:&quot;3585060486612885CB524B4175D&quot;,&quot;x&quot;:&quot;1050-mwmgd-5CB524B4175D-5927403794034853934-false&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">server</stringProp>
-          <stringProp name="HTTPSampler.port">httpPort</stringProp>
+          <stringProp name="HTTPSampler.domain">@server</stringProp>
+          <stringProp name="HTTPSampler.port">@port</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">httpPath</stringProp>
-          <stringProp name="HTTPSampler.method">httpMethod</stringProp>
+          <stringProp name="HTTPSampler.path">@api</stringProp>
+          <stringProp name="HTTPSampler.method">@method</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
@@ -75,14 +75,14 @@
         </HTTPSamplerProxy>
         <hashTree/>
         <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="ConstantTimer" enabled="true">
-          <stringProp name="ConstantTimer.delay">thinktime</stringProp>
+          <stringProp name="ConstantTimer.delay">@thinktime</stringProp>
         </ConstantTimer>
         <hashTree/>
         <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="Cookie" enabled="true">
           <collectionProp name="CookieManager.cookies">
             <elementProp name="authToken" elementType="Cookie" testname="authToken">
               <stringProp name="Cookie.value">a2a2e9aab78774d8ea3b64b19d5506f9</stringProp>
-              <stringProp name="Cookie.domain">server</stringProp>
+              <stringProp name="Cookie.domain">@server</stringProp>
               <stringProp name="Cookie.path">/</stringProp>
               <boolProp name="Cookie.secure">false</boolProp>
               <longProp name="Cookie.expires">0</longProp>
@@ -131,32 +131,32 @@
               <bytes>true</bytes>
             </value>
           </objProp>
-          <stringProp name="filename">jtlFile</stringProp>
+          <stringProp name="filename">@jtlFile</stringProp>
           <longProp name="interval_grouping">1000</longProp>
           <boolProp name="graph_aggregated">false</boolProp>
           <stringProp name="include_sample_labels"></stringProp>
           <stringProp name="exclude_sample_labels"></stringProp>
           <collectionProp name="metricConnections">
             <collectionProp name="921074154">
-              <stringProp name="-851256601">server</stringProp>
+              <stringProp name="-851256601">@server</stringProp>
               <stringProp name="1600768">4444</stringProp>
               <stringProp name="66952">CPU</stringProp>
               <stringProp name="-1740951090">label=combined</stringProp>
             </collectionProp>
             <collectionProp name="-1373220112">
-              <stringProp name="-851256601">server</stringProp>
+              <stringProp name="-851256601">@server</stringProp>
               <stringProp name="1600768">4444</stringProp>
               <stringProp name="73589">JMX</stringProp>
-              <stringProp name="-1041958359">url=server\:jmxPort:label=gc:gc-time</stringProp>
+              <stringProp name="-1041958359">url=@server\:@jmxPort:label=gc:gc-time</stringProp>
             </collectionProp>
             <collectionProp name="964315230">
               <stringProp reference="../../collectionProp[2]/stringProp"/>
               <stringProp reference="../../collectionProp[2]/stringProp[2]"/>
               <stringProp name="73589">JMX</stringProp>
-              <stringProp name="-403953958">url=server\:jmxPort:label=heap:memory-usage</stringProp>
+              <stringProp name="-403953958">url=@server\:@jmxPort:label=heap:memory-usage</stringProp>
             </collectionProp>
             <collectionProp name="-1890535872">
-              <stringProp name="-851256601">server</stringProp>
+              <stringProp name="-851256601">@server</stringProp>
               <stringProp name="1600768">4444</stringProp>
               <stringProp name="66952">CPU</stringProp>
               <stringProp name="1447445530">label=sy:system</stringProp>

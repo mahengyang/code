@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE tsung SYSTEM "/usr/local/share/tsung/tsung-1.0.dtd">
+
+<tsung loglevel="notice" dumptraffic="false" version="1.0">
+
+  <clients>
+    <client host="localhost" use_controller_vm="true"  maxusers="100000" />
+  </clients>
+
+  <servers>
+    <server host="@server" port="@port" type="tcp"/>
+    <!--
+    <server host="10.10.0.176" port="9003" type="tcp"/>
+    <server host="10.10.0.176" port="9004" type="tcp"/>
+    -->
+  </servers>
+
+  <load>
+    <arrivalphase phase="1" duration="@duration" unit="second">
+      <users maxnumber="@maxuser" arrivalrate="@user" unit="second"/>
+    </arrivalphase>
+  </load>
+
+  <sessions>
+    <session name="hellokitty" probability="100" type="ts_http">
+      <for from="1" to="@loopCount" incr="1" var="counter">
+        <setdynvars sourcetype="eval" code="fun({Pid,DynVars}) -> {{Y,M,D},{H,MM,S}} = calendar:now_to_local_time(erlang:now()),integer_to_list(Y)++integer_to_list(M)++integer_to_list(D)++integer_to_list(H)++integer_to_list(MM)++integer_to_list(S) end.">
+           <var name="time"/>
+        </setdynvars>
+        <request>
+          <http url="@api" method="@method" contents='{"u":"a","mcc":460,"n":"a","by":0,"mnc":1,"lnt":116.345031,"cid":4936921,"lat":39.980952,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}' version="1.1">
+            <http_header name="Authorization" value="226ec1f37625590b6291f8501fde7d1f"/>
+            <http_header name="X-Devid" value="0"/>
+            <http_header name="X-UserTag" value="999901999999"/>
+            <add_cookie key="AuthToken" value="b98459c57646150fb79fbe43ed0ed164"/>
+            <add_cookie key="Path" value="/"/>
+          </http>
+        </request>
+
+        <thinktime value="@thinktime"/>
+      </for>
+    </session>
+  </sessions>
+</tsung>

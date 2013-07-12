@@ -1,13 +1,4 @@
 #!/bin/bash
-processName="jmeter"
-pid=`ps aux | grep $processName | grep -v grep | awk '{print $2}'`
-#convert from string to array
-pid=($pid)
-# pid length more then 2 exit
-if [ ${#pid[*]} -gt 2 ]; then
-  echo "warning!!! a jmeter process is running,please wait"
-  exit 1
-fi
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -76,6 +67,14 @@ while [ $# -gt 0 ]; do
       ;;
   esac
 done
+processName="jmeter"
+pid=`ps aux | grep $processName | grep -v grep | awk '{print $2}'`
+#convert from string to array
+pid=($pid)
+if [ ${#pid[*]} -gt 3 ]; then
+  echo "warning!!! a jmeter process is running,please wait"
+  exit 1
+fi
 
 #env
 jmeterHome="/usr/local/bin/apache-jmeter-2.9"
@@ -83,7 +82,7 @@ jmeter="$jmeterHome/bin/jmeter"
 stopTest="$jmeterHome/bin/stoptest.sh"
 CMDRunner="$jmeterHome/lib/ext/CMDRunner.jar"
 
-currentTest=`date +%Y%m%d%H%M%S`
+currentTest=`date +%Y%m%d-%H%M`
 reportPath="$HOME/jmeterReport/$currentTest"
 mkdir -p $reportPath
 jmeterLog="$reportPath/request.jtl"
@@ -108,9 +107,9 @@ paramJmeter=( \
   ["totalTime"]=$ramptime \
   ["thinktime"]=$thinktime \
   ["server"]=$server \
-  ["httpPort"]=$port \
-  ["httpPath"]=$api \
-  ["httpMethod"]=$method \
+  ["port"]=$port \
+  ["api"]=$api \
+  ["method"]=$method \
   ["jtlFile"]=$jmeterJtl \
   ["jmxPort"]=$jmxPort \
   ["loopCount"]=$loopCount \
@@ -123,7 +122,7 @@ function replace(){
   echo "$1:$2" | tee -a "$reportPath/test.env"
   #change / to \/ for sed 
   local val=${2//\//\\\/}
-  sed -i "s/${1}/${val}/" $currentJmeterFile
+  sed -i "s/@${1}/${val}/" $currentJmeterFile
 }
 for key in ${!paramJmeter[*]}
 do
