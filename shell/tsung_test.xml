@@ -32,8 +32,8 @@
             <http_header name="Authorization" value="def7c5b70f04287effaaa402ecf9cd51"/>
             <http_header name="X-Devid" value="0"/>
             <http_header name="X-UserTag" value="999901999999"/>
-            <add_cookie key="AuthToken" value="a2a2e9aab78774d8ea3b64b19d5506f9"/>
-            <add_cookie key="Path" value="/"/>
+            <http_header name="Cookie" value="authToken=a2a2e9aab78774d8ea3b64b19d5506f9; Path=/"/>
+            <http_header name="Content-Type" value="application/json"/>
           </http>
         </request>
 

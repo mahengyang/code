@@ -58,7 +58,7 @@ while [ $# -gt 0 ]; do
             echo "-u | --user: user number per second, default $defaultUser"
             echo "-x | --maxuser: max user number, default $defaultMaxuser"
             echo "-d | --duration: times used to generate user,default $defaultDuration s"
-            echo "-t | --thinktime: the inteval time between two request,default defaultThinktime s"
+            echo "-t | --thinktime: the inteval time between two request,default $defaultThinktime s"
             echo "-l | --loopCount: Each user's request number,default $defaultLoopCount"
             echo "-s | --server: play server,default $defaultServer"
             echo "-p | --port: play server http port,default $defaultPort"
