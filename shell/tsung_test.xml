@@ -32,7 +32,7 @@
         <request>
           <http url="@api" method="GET" version="1.1">
             <http_header name="Authorization" value="def7c5b70f04287effaaa402ecf9cd51"/>
-            <http_header name="Cookie" value="authToken=630a7a56e8e06bb8401992d1c5eeefe7; Path=/"/>
+            <http_header name="Cookie" value="authToken=a2a2e9aab78774d8ea3b64b19d5506f9; Path=/"/>
             <http_header name="X-DevId" value="0"/>
             <http_header name="X-UserTag" value="0"/>
           </http>

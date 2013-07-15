@@ -14,7 +14,7 @@ defaultMethod="POST"
 defaultloop=50
 defaultMaxuser=5000
 defaultProbabilityGet=0
-defaultContents='{"u":"a","mcc":460,"n":"a","by":0,"mnc":1,"lnt":116.345031,"cid":4936921,"lat":39.980952,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}'
+defaultContents='{&quot;u&quot;:&quot;a&quot;,&quot;mcc&quot;:460,&quot;n&quot;:&quot;a&quot;,&quot;by&quot;:0,&quot;mnc&quot;:1,&quot;lnt&quot;:116.345031,&quot;cid&quot;:4936921,&quot;lat&quot;:39.980952,&quot;lac&quot;:41019,&quot;dId&quot;:&quot;35513605339286910683F9028B1&quot;,&quot;x&quot;:&quot;3352--10683F9028B1-4075689767927285040&quot;}'
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -152,18 +152,18 @@ do
   replace $key ${params[$key]}
 done
 
-##start jmeter 
-#$jmeterRun -s $server -p $port -u 1 -r 1 -t 100000000 -l 2 -x "1$port" &
-##start tsung 
-#tsung -f $currentTestFile start &
-#
-#wait %2
-#cd $reportPath
-#/usr/local/lib/tsung/bin/tsung_stats.pl
-#
-##stop jmeter when tsung is complete
-#/usr/local/bin/apache-jmeter-2.9/bin/stoptest.sh
-#wait %1
-#
-#cp "$jmeterReportPath/$currentTest/PerfMon.png" "$reportPath"
-#cp "$jmeterReportPath/$currentTest/PerfMon.csv" "$reportPath"
+#start jmeter 
+$jmeterRun -s $server -p $port -u 1 -r 1 -t 100000000 -l 2 -x "1$port" &
+#start tsung 
+tsung -f $currentTestFile start &
+
+wait %2
+cd $reportPath
+/usr/local/lib/tsung/bin/tsung_stats.pl
+
+#stop jmeter when tsung is complete
+/usr/local/bin/apache-jmeter-2.9/bin/stoptest.sh
+wait %1
+
+cp "$jmeterReportPath/$currentTest/PerfMon.png" "$reportPath"
+cp "$jmeterReportPath/$currentTest/PerfMon.csv" "$reportPath"
