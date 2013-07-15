@@ -23,7 +23,7 @@
 
   <sessions>
     <session name="hellokitty" probability="100" type="ts_http">
-      <for from="1" to="@loopCount" incr="1" var="counter">
+      <for from="1" to="@loop" incr="1" var="counter">
         <setdynvars sourcetype="eval" code="fun({Pid,DynVars}) -> {{Y,M,D},{H,MM,S}} = calendar:now_to_local_time(erlang:now()),integer_to_list(Y)++integer_to_list(M)++integer_to_list(D)++integer_to_list(H)++integer_to_list(MM)++integer_to_list(S) end.">
            <var name="time"/>
         </setdynvars>

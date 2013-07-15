@@ -147,13 +147,6 @@ $jmeter -n -t $currentTestFile -l $jmeterLog &
 
 wait %1
 
-reports="AggregateReport ThreadsStateOverTime BytesThroughputOverTime HitsPerSecond LatenciesOverTime ResponseCodesPerSecond ResponseTimesDistribution ResponseTimesOverTime ResponseTimesPercentiles ThroughputOverTime ThroughputVsThreads TimesVsThreads TransactionsPerSecond PageDataExtractorOverTime"
-#generate report
-for report in $reports 
-do
-   echo "create report: $report"
-   java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/$report.png" --input-jtl $jmeterLog --plugin-type $report --width 1200 --height 700 > /dev/null 2>&1
-done
 echo "create report: PerfMon"
 java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/PerfMon.png" --input-jtl $jmeterJtl --plugin-type PerfMon --width 3200 --height 700 > /dev/null 2>&1
 java -jar $CMDRunner --tool Reporter --generate-csv "$reportPath/PerfMon.csv" --input-jtl $jmeterJtl --plugin-type PerfMon > /dev/null 2>&1
