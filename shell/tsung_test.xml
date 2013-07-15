@@ -21,23 +21,42 @@
     </arrivalphase>
   </load>
 
-  <sessions>
-    <session name="hellokitty" probability="100" type="ts_http">
+
+<sessions>
+    <session name="hellokitty" probability="@probabilityGet" type="ts_http">
+      <for from="1" to="@loop" incr="1" var="counter">
+        <setdynvars sourcetype="eval" code="fun({Pid,DynVars}) -> {{Y,M,D},{H,MM,S}} = calendar:now_to_local_time(erlang:now()),integer_to_list(Y)++integer_to_list(M)++integer_to_list(D)++integer_to_list(H)++integer_to_list(MM)++integer_to_list(S) end.">
+           <var name="time"/>
+        </setdynvars>
+
+        <request>
+          <http url="@api" method="GET" version="1.1">
+            <http_header name="Authorization" value="def7c5b70f04287effaaa402ecf9cd51"/>
+            <http_header name="Cookie" value="authToken=630a7a56e8e06bb8401992d1c5eeefe7; Path=/"/>
+            <http_header name="X-DevId" value="0"/>
+            <http_header name="X-UserTag" value="0"/>
+          </http>
+        </request>
+        <thinktime value="1"/>
+      </for>
+    </session> 
+    
+    <session name="hellokitty" probability="@probabilityPOST" type="ts_http">
       <for from="1" to="@loop" incr="1" var="counter">
         <setdynvars sourcetype="eval" code="fun({Pid,DynVars}) -> {{Y,M,D},{H,MM,S}} = calendar:now_to_local_time(erlang:now()),integer_to_list(Y)++integer_to_list(M)++integer_to_list(D)++integer_to_list(H)++integer_to_list(MM)++integer_to_list(S) end.">
            <var name="time"/>
         </setdynvars>
         <request>
-          <http url="@api" method="@method" contents='{"u":"a","mcc":460,"n":"a","by":0,"mnc":1,"lnt":116.345031,"cid":4936921,"lat":39.980952,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}' version="1.1">
+          <http url="@api" method="POST" contents="@contents" version="1.1">
             <http_header name="Authorization" value="def7c5b70f04287effaaa402ecf9cd51"/>
             <http_header name="X-Devid" value="0"/>
-            <http_header name="X-UserTag" value="999901999999"/>
+            <http_header name="X-UserTag" value="208601471367"/>
             <http_header name="Cookie" value="authToken=a2a2e9aab78774d8ea3b64b19d5506f9; Path=/"/>
             <http_header name="Content-Type" value="application/json"/>
           </http>
         </request>
 
-        <thinktime value="@thinktime"/>
+        <thinktime value="1"/>
       </for>
     </session>
   </sessions>

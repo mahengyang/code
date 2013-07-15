@@ -1,6 +1,6 @@
 #!/bin/bash
 jmeterRun="./jmeter_run.sh"
-jmeterReportPath='$HOME/jmeterReport'
+jmeterReportPath="$HOME/jmeterReport"
 
 defaultTestFile="$HOME/tsung_test.xml"
 defaultUser=20
@@ -13,6 +13,8 @@ defaultApi="/v2/locations/checkin"
 defaultMethod="POST"
 defaultloop=50
 defaultMaxuser=5000
+defaultProbabilityGet=0
+defaultContents='{"u":"a","mcc":460,"n":"a","by":0,"mnc":1,"lnt":116.345031,"cid":4936921,"lat":39.980952,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}'
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -56,6 +58,10 @@ while [ $# -gt 0 ]; do
             maxuser=$2
             shift 
             shift ;;
+    -c|--contents)
+			contents=$2
+			shift
+			shift ;;
     -h|--help)
             echo "-f | --testFile: tsung test file xml,default $defaultTestFile"
             echo "-u | --user: user number per second, default $defaultUser"
@@ -67,6 +73,7 @@ while [ $# -gt 0 ]; do
             echo "-p | --port: play server http port,default $defaultPort"
             echo "-a | --api: api, default $defaultApi"
             echo "-m | --method: POST/GET,default $defaultMethod"
+            echo "-c | --contents: POST request body"
             echo "-h | --help: print this help"
             shift
             exit 1
@@ -103,6 +110,13 @@ api=${api:=$defaultApi}
 method=${method:=$defaultMethod}
 loop=${loop:=$defaultloop}
 maxuser=${maxuser:=$defaultMaxuser}
+contents=${contents:=$defaultContents}
+#ignore lower and upper, warning ! [[ ]]
+if [[ $method = [Gg][Ee][Tt] ]]; then
+	probabilityGet=100
+fi
+probabilityGet=${probabilityGet:=$defaultProbabilityGet}
+probabilityPOST=`expr 100 - $probabilityGet`
 
 #key of params is nodname in tusng_test.xml file
 declare -A params
@@ -114,12 +128,15 @@ params=( \
   ["server"]=$server \
   ["port"]=$port \
   ["api"]=$api \
-  ["method"]=$method \
   ["loop"]=$loop \
+  ["contents"]=$contents \
+  ["probabilityGet"]=$probabilityGet \
+  ["probabilityPOST"]=$probabilityPOST
   )
 reportPath="$HOME/.tsung/log"
 currentTest=`date +%Y%m%d-%H%M`
 reportPath="$reportPath/$currentTest"
+echo "make tsung report path $reportPath"
 mkdir -p $reportPath
 #deal with jmx file
 cp $testFile $reportPath
@@ -135,18 +152,18 @@ do
   replace $key ${params[$key]}
 done
 
-#start jmeter 
-$jmeterRun -s $server -p $port -u 1 -r 1 -t 100000000 -l 2 -x "1$port" &
-#start tsung 
-tsung -f $currentTestFile start &
-
-wait %2
-cd $reportPath
-/usr/local/lib/tsung/bin/tsung_stats.pl
-
-#stop jmeter when tsung is complete
-/usr/local/bin/apache-jmeter-2.9/bin/stoptest.sh
-wait %1
-
-cp "$jmeterReportPath/$currentTest/PerfMon.png" "$reportPath"
-cp "$jmeterReportPath/$currentTest/PerfMon.csv" "$reportPath"
+##start jmeter 
+#$jmeterRun -s $server -p $port -u 1 -r 1 -t 100000000 -l 2 -x "1$port" &
+##start tsung 
+#tsung -f $currentTestFile start &
+#
+#wait %2
+#cd $reportPath
+#/usr/local/lib/tsung/bin/tsung_stats.pl
+#
+##stop jmeter when tsung is complete
+#/usr/local/bin/apache-jmeter-2.9/bin/stoptest.sh
+#wait %1
+#
+#cp "$jmeterReportPath/$currentTest/PerfMon.png" "$reportPath"
+#cp "$jmeterReportPath/$currentTest/PerfMon.csv" "$reportPath"
