@@ -1,18 +1,19 @@
 #!/bin/bash
+#################env
 jmeterRun="./jmeter_run.sh"
 jmeterReportPath="$HOME/jmeterReport"
-
+scriptPath="/usr/local/apps/DmCloud/shared/scripts"
+#################default value for all parameters
 defaultTestFile="$HOME/tsung_test.xml"
-defaultUser=20
-defaultDuration=100
-# s
-defaultThinktime=1
+defaultUser=10
+defaultDuration=200
+defaultThinktime=1  # s
 defaultServer="LDKJSERVER0007"
 defaultPort=9002
 defaultApi="/v2/locations/checkin"
 defaultMethod="POST"
-defaultloop=50
-defaultMaxuser=5000
+defaultloop=300
+defaultMaxuser=8000
 defaultProbabilityGet=0
 defaultContents='{&quot;u&quot;:&quot;a&quot;,&quot;mcc&quot;:460,&quot;n&quot;:&quot;a&quot;,&quot;by&quot;:0,&quot;mnc&quot;:1,&quot;lnt&quot;:116.345031,&quot;cid&quot;:4936921,&quot;lat&quot;:39.980952,&quot;lac&quot;:41019,&quot;dId&quot;:&quot;35513605339286910683F9028B1&quot;,&quot;x&quot;:&quot;3352--10683F9028B1-4075689767927285040&quot;}'
 
@@ -88,7 +89,7 @@ while [ $# -gt 0 ]; do
       ;;
   esac
 done
-
+#################check if tsung has aready run
 processName="tsung"
 pid=`ps aux | grep $processName | grep -v grep | awk '{print $2}'`
 #convert from string to array
@@ -97,9 +98,30 @@ if [ ${#pid[*]} -gt 3 ]; then
   echo "warning!!! a $processName process is running,please wait"
   exit 1
 fi
-
-#env
-#set default parameters
+#################restart play server
+ssh LDKJSERVER0007 << EOF
+pid1="\`ps aux | grep play | grep -v grep | awk '{print \$2}'\`"
+#pid is not null indicate play was on
+if [ -n "\$pid1" ] ; then
+  echo "stop play..."
+  "$scriptPath/stop-play.sh"
+  sleep 2
+  pid2="\`ps aux | grep play | grep -v grep | awk '{print \$2}'\`"
+  if [ "\$pid2" == "\$pid1" ] ; then
+    echo "can not stop play,force kill it !!!"
+    kill "\$pid1"
+    sleep 3
+  fi
+fi
+echo "start play..."
+"$scriptPath/start-play.sh"
+pid3="\`ps aux | grep play | grep -v grep | awk '{print \$2}'\`"
+if [ ! -n "\$pid3" ] ; then
+  echo "can not start play !!!"  
+fi
+exit
+EOF
+#################set assign value or set default if has no param
 testFile=${testFile:=$defaultTestFile}
 user=${user:=$defaultUser}
 duration=${duration:=$defaultDuration}
@@ -111,14 +133,14 @@ method=${method:=$defaultMethod}
 loop=${loop:=$defaultloop}
 maxuser=${maxuser:=$defaultMaxuser}
 contents=${contents:=$defaultContents}
-#ignore lower and upper, warning ! [[ ]]
+#ignore lower and upper, attention: [[ ]]
 if [[ $method = [Gg][Ee][Tt] ]]; then
 	probabilityGet=100
 fi
 probabilityGet=${probabilityGet:=$defaultProbabilityGet}
 probabilityPOST=`expr 100 - $probabilityGet`
 
-#key of params is nodname in tusng_test.xml file
+#################key of params is nodename in tusng_test.xml file
 declare -A params
 params=( \
   ["user"]=$user \
@@ -138,7 +160,7 @@ currentTest=`date +%Y%m%d-%H%M`
 reportPath="$reportPath/$currentTest"
 echo "make tsung report path $reportPath"
 mkdir -p $reportPath
-#deal with jmx file
+#################prepare test file
 cp $testFile $reportPath
 currentTestFile="$reportPath/tsung_test.xml"
 function replace(){
