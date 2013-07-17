@@ -133,6 +133,9 @@ method=${method:=$defaultMethod}
 loop=${loop:=$defaultloop}
 maxuser=${maxuser:=$defaultMaxuser}
 contents=${contents:=$defaultContents}
+contents=${contents//\"/&quot;} #convert " to &quot;
+contents=${contents// /} #delete backspace
+contents=${contents//&/\\&} #conver & to \& for sed treat & as string that matched
 #ignore lower and upper, attention: [[ ]]
 if [[ $method = [Gg][Ee][Tt] ]]; then
 	probabilityGet=100
