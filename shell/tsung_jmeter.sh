@@ -134,9 +134,6 @@ method=${method:=$defaultMethod}
 loop=${loop:=$defaultloop}
 maxuser=${maxuser:=$defaultMaxuser}
 contents=${contents:=$defaultContents}
-contents=${contents//\"/&quot;} #convert " to &quot;
-contents=${contents// /} #delete backspace
-contents=${contents//&/\\&} #conver & to \& for sed treat & as string that matched
 #ignore lower and upper, attention: [[ ]]
 if [[ $method = [Gg][Ee][Tt] ]]; then
   probabilityGet=100
@@ -166,12 +163,16 @@ cp $testFile $reportPath
 currentTestFile="$reportPath/tsung_test.xml"
 function replace(){
   echo "$1:$2" | tee -a "$reportPath/test.env"
+  #delete backspace
+  local val=${2// /}
   #change / to \/ for sed 
-  local val=${2//\//\\\/}
-  #change & to \& for sed
-  val=${2//&/\\&}
+  val=${val//\//\\\/}
+  val=${val//&/\\&amp;}
+  #convert " to &quot;
+  val=${val//\"/\\&quot;}
   sed -i "s/@${1}/${val}/" $currentTestFile
 }
+
 for key in ${!params[*]}
 do
   replace $key ${params[$key]}
