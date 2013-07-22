@@ -1,20 +1,21 @@
 #!/bin/bash
 #################env
 jmeterRun="./jmeter_run.sh"
-jmeterReportPath="$HOME/jmeterReport"
 scriptPath="/usr/local/apps/DmCloud/shared/scripts"
+currentTest=`date +%Y%m%d-%H%M`
+reportPath="$HOME/.tsung/log/$currentTest"
 #################default value for all parameters
 defaultTestFile="$HOME/tsung_test.xml"
 defaultUser=10
-defaultDuration=200
+defaultDuration=20
 defaultThinktime=1  # s
 defaultServer="LDKJSERVER0007"
 defaultPort=9002
-defaultApi="/v2/locations/checkin"
-defaultMethod="POST"
-defaultloop=300
+defaultApi="/v2/stest5"
+defaultMethod="GET"
+defaultloop=30
 defaultMaxuser=8000
-defaultProbabilityGet=0
+defaultProbabilityGet=100
 defaultContents='{"u":"a","mcc":460,"n":"a","by":0,"mnc":1,"lnt":116.345031,"cid":4936921,"lat":39.980952,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}'
 
 while [ $# -gt 0 ]; do
@@ -60,9 +61,9 @@ while [ $# -gt 0 ]; do
             shift 
             shift ;;
     -c|--contents)
-			contents=$2
-			shift
-			shift ;;
+      contents=$2
+      shift
+      shift ;;
     -h|--help)
             echo "-f | --testFile: tsung test file xml,default $defaultTestFile"
             echo "-u | --user: user number per second, default $defaultUser"
@@ -138,7 +139,7 @@ contents=${contents// /} #delete backspace
 contents=${contents//&/\\&} #conver & to \& for sed treat & as string that matched
 #ignore lower and upper, attention: [[ ]]
 if [[ $method = [Gg][Ee][Tt] ]]; then
-	probabilityGet=100
+  probabilityGet=100
 fi
 probabilityGet=${probabilityGet:=$defaultProbabilityGet}
 probabilityPOST=`expr 100 - $probabilityGet`
@@ -158,9 +159,6 @@ params=( \
   ["probabilityGet"]=$probabilityGet \
   ["probabilityPOST"]=$probabilityPOST
   )
-reportPath="$HOME/.tsung/log"
-currentTest=`date +%Y%m%d-%H%M`
-reportPath="$reportPath/$currentTest"
 echo "make tsung report path $reportPath"
 mkdir -p $reportPath
 #################prepare test file
@@ -185,10 +183,11 @@ tsung -f $currentTestFile start &
 wait %2
 cd $reportPath
 /usr/local/lib/tsung/bin/tsung_stats.pl
-
+cd
 #stop jmeter when tsung is complete
 /usr/local/bin/apache-jmeter-2.9/bin/stoptest.sh
 wait %1
-
-cp "$jmeterReportPath/$currentTest/PerfMon.png" "$reportPath"
-cp "$jmeterReportPath/$currentTest/PerfMon.csv" "$reportPath"
+if [[ $duration -le 60 || ! -a "$reportPath/images/graphes-HTTP_CODE-rate.png" ]]; then
+  echo "it seems just a temp, $reportPath will be deleted"
+  rm -rf $reportPath
+fi

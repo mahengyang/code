@@ -97,8 +97,8 @@ stopTest="$jmeterHome/bin/stoptest.sh"
 CMDRunner="$jmeterHome/lib/ext/CMDRunner.jar"
 
 currentTest=`date +%Y%m%d-%H%M`
-reportPath="$HOME/jmeterReport/$currentTest"
-mkdir -p $reportPath
+reportPath="$HOME/.tsung/log/$currentTest"
+# mkdir -p $reportPath
 jmeterLog="$reportPath/request.jtl"
 jmeterJtl="$reportPath/PerfMon.jtl"
 
@@ -133,7 +133,7 @@ paramJmeter=( \
 cp $testFile $reportPath
 currentTestFile="$reportPath/jmeter_test.jmx"
 function replace(){
-  echo "$1:$2" | tee -a "$reportPath/test.env"
+  # echo "$1:$2" | tee -a "$reportPath/test.env"
   #change / to \/ for sed 
   local val=${2//\//\\\/}
   sed -i "s/@${1}/${val}/" $currentTestFile
