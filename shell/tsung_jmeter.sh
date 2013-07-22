@@ -168,6 +168,8 @@ function replace(){
   echo "$1:$2" | tee -a "$reportPath/test.env"
   #change / to \/ for sed 
   local val=${2//\//\\\/}
+  #change & to \& for sed
+  val=${2//&/\\&}
   sed -i "s/@${1}/${val}/" $currentTestFile
 }
 for key in ${!params[*]}
@@ -180,6 +182,9 @@ $jmeterRun -s $server -p $port -u 1 -r 1 -t 100000000 -l 2 -x "1$port" &
 #start tsung 
 tsung -f $currentTestFile start &
 
+begin=`date`
+begin=`date -d  "$begin" +%s`
+
 wait %2
 cd $reportPath
 /usr/local/lib/tsung/bin/tsung_stats.pl
@@ -187,7 +192,15 @@ cd
 #stop jmeter when tsung is complete
 /usr/local/bin/apache-jmeter-2.9/bin/stoptest.sh
 wait %1
-if [[ $duration -le 60 || ! -a "$reportPath/images/graphes-HTTP_CODE-rate.png" ]]; then
+
+end=`date`
+end=`date -d  "$end" +%s`
+
+runtime=`expr $end - $begin`
+if [ $runtime -le 60 ] || [ ! -a "$reportPath/images/graphes-HTTP_CODE-rate.png" ]; then
   echo "it seems just a temp, $reportPath will be deleted"
   rm -rf $reportPath
+else
+  newReport="<a href=\"./log/$currentTest\">$currentTest -- api:${api%%\?*} -- loop:$loop user:$user duration:$duration thinktime:$thinktime maxuser:$maxuser</a>\n<br>\n<img src=\"./log/$currentTest/images/graphes-Transactions-rate_tn.png\" alt=\"http_code_rate\" />\n<img src=\"./log/$currentTest/images/graphes-Perfs-mean_tn.png\" alt=\"perfs-meann\" />\n<br>"
+  sed -i "/\/body/i\\${newReport}" $HOME/.tsung/index.html
 fi
