@@ -26,8 +26,7 @@ qquery(Table,Condition) ->
   % get table fields
   Temp = mnesia:table_info(Table,cstruct),
   Table_structure = element(14,Temp),
-	io:format("~s~n",["==== table structure ===="]),
-  io:format("~p~n",[Table_structure]),
+	io:format("==== table structure ====~n~p~n",[Table_structure]),
   {ok,Ts,_} = erl_scan:string(atom_to_list(Condition)),
   [{_,_,Col} | _] = Ts,
   Field = atom_upper(Table_structure),
@@ -42,12 +41,6 @@ qquery(Table,Condition) ->
     qlc:eval(QueryH)
     end,
   {atomic,Result} = mnesia:transaction(F),
-	io:format("~s~n",["==== result ===="]),
-  print(Result).
-%% print every element of a list
-print([X | []]) ->
-  io:format("~p~n",[X]);
-print([X | Rest]) ->
-  io:format("~p~n",[X]),
-  print(Rest).
-  
+	io:format("==== result ====~n",[]),
+	lists:foreach(fun(X) -> io:format("~p~n",[X]) end,Result).
+
