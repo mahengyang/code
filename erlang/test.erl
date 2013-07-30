@@ -1,5 +1,5 @@
 -module(test).
--export([print/1,paste/2,qquery/2,parse/1,atom_upper/1]).
+-export([paste/2,qquery/2,parse/1]).
 -include_lib("stdlib/include/qlc.hrl").
 
 parse(S) ->
@@ -7,12 +7,6 @@ parse(S) ->
     {ok,Parsed} = erl_parse:parse_exprs(Scanned),
     {value, Value,_} = erl_eval:exprs(Parsed,[]),
     Value. 
-
-%% [id,name] --> ["ID","NAME"]
-atom_upper([A |[]]) ->
-  [string:to_upper(atom_to_list(A))];
-atom_upper([A | Rest]) ->
-  [string:to_upper(atom_to_list(A)) | atom_upper(Rest)].
 
 %% ["ID","NAME"] --> "ID,NAME"
 paste([A | []],Sep) ->
@@ -29,7 +23,8 @@ qquery(Table,Condition) ->
 	io:format("==== table structure ====~n~p~n",[Table_structure]),
   {ok,Ts,_} = erl_scan:string(atom_to_list(Condition)),
   [{_,_,Col} | _] = Ts,
-  Field = atom_upper(Table_structure),
+	% [id,name] --> ["ID","NAME"]
+	Field = lists:map(fun(X)->string:to_upper(atom_to_list(X)) end,Table_structure),
   % building query string for qlc
   QS = "[{" ++ paste(Field,",") ++ "}||{" ++ 
           paste([atom_to_list(Table) | Field],",") ++ 
