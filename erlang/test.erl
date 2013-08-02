@@ -1,5 +1,5 @@
 -module(test).
--export([init_table/2,example/1,select/2,next_n/4,operater/3,operater/2,clean_table/1,delete/1,qengin/1,paste/2,insert/1,parse/1]).
+-export([clean_batch_table/2,delete_batch/3,init_table/2,example/1,select/2,next_n/4,operater/3,operater/2,clean_table/1,delete/1,qengin/1,paste/2,insert/1,parse/1]).
 -include_lib("stdlib/include/qlc.hrl").
 parse(S) ->
     {ok,Scanned,_} = erl_scan:string(S),
@@ -86,14 +86,42 @@ delete_all(Table,{atomic,K}) ->
 	operater(fun mnesia:delete/1,{Table,K}),
 	delete_all(Table,Next_key).
 
-next_n(Table,K,1,All_key) ->
+
+clean_batch_table(Table,N) ->
+	{atomic,First_key} = operater(fun mnesia:first/1,Table),
+	io:format("first key ~p~n",[First_key]),
+  delete_batch(Table,First_key,N).
+
+delete_batch(Table, [], N) ->
+        over;
+delete_batch(Table, K, N) ->
+				%io:format("delete_batch(~p, ~p)~n", [K, N]),
+				[Head | Keys] = next_n(Table,K,N,[]),
+				if 
+					length(Keys) =/= 0 -> 
+						batch(Table,fun mnesia:delete/3,Keys),
+						delete_batch(Table,Head,N);
+					length(Keys) == 0 -> 
+						batch(Table,fun mnesia:delete/3,[Head])
+        end.
+
+next_n(Table,'$end_of_table', N, All_key) ->
+				%io:format("next_n($end_of_table, ~p, ~p)~n",[N, All_key]),
+				All_key;
+next_n(Table, K, 1, All_key) ->
+				%io:format("next_n(~p, =1=), ~p~n", [K, All_key]),
+				[K | All_key];
+next_n(Table, K, N, All_key) ->
 				{atomic,Next_key} = operater(fun mnesia:next/2,Table,K),
-				[Next_key | All_key];
-next_n(Table,K,N,All_key) ->
-				{atomic,Next_key} = operater(fun mnesia:next/2,Table,K),
-				io:format("next key : ~p~n",[Next_key]),
-				next_n(Table,Next_key,N-1,[Next_key | All_key]).
-   
+				%io:format("next_n(~p, ~p, ~p), ~p~n", [K, N, All_key, Next_key]),
+				next_n(Table, Next_key, N-1, [K | All_key]).
+
+batch(Table,Op,Keys) ->
+  F = fun() ->
+				[Op(Table,K,sticky_write) || K <- Keys]
+  end,
+  mnesia:transaction(F).
+
 operater(Op,Table,Keys) ->
   F = fun() ->
 			  Op(Table,Keys)
