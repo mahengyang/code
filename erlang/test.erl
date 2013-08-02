@@ -1,5 +1,5 @@
 -module(test).
--export([example/1,select/2,operater/3,operater/2,clean_table/1,delete/1,qengin/1,paste/2,insert/1,qquery/2,parse/1]).
+-export([init_table/2,example/1,select/2,next_n/4,operater/3,operater/2,clean_table/1,delete/1,qengin/1,paste/2,insert/1,parse/1]).
 -include_lib("stdlib/include/qlc.hrl").
 parse(S) ->
     {ok,Scanned,_} = erl_scan:string(S),
@@ -53,39 +53,21 @@ qengin(Table_info) ->
 				qengin(Table_info)
   end.
 
-		  
-%% use qlc to query, Condition is an atom
-qquery(Table,Condition) ->
-  % get table fields
-  Temp = mnesia:table_info(Table,cstruct),
-  Table_structure = element(14,Temp),
-	io:format("==== table structure ====~n~p~n",[Table_structure]),
-  {ok,Ts,_} = erl_scan:string(atom_to_list(Condition)),
-  [{_,_,Col} | _] = Ts,
-	% [id,name] --> ["ID","NAME"]
-	Field = lists:map(fun(X)->string:to_upper(atom_to_list(X)) end,Table_structure),
-  % building query string for qlc
-  QS = "[{" ++ paste(Field,",") ++ "}||{" ++ 
-          paste([atom_to_list(Table) | Field],",") ++ 
-          "} <- mnesia:table(" ++ atom_to_list(Table) ++ 
-          ")," ++ atom_to_list(Condition) ++ "].",
-  io:format("~p~n",[QS]),
-  F = fun() ->
-    QueryH = qlc:string_to_handle(QS), 
-    qlc:eval(QueryH)
-    end,
-  {atomic,Result} = mnesia:transaction(F),
-	io:format("==== result ====~n",[]),
-	lists:foreach(fun(X) -> io:format("~p~n",[X]) end,Result).
-
 select(Table,Key) ->
   operater(fun mnesia:read/1,{Table,Key}).
+
 example(Table) ->
   {atomic,K} = operater(fun mnesia:first/1,Table),
-  {atomic,Recoder} = select(Table,K),
-	[H | _] = Recoder,
+	{atomic,[Recoder | _]} = select(Table,K),
 	table_st(Table),
-	H.
+	Recoder.
+
+init_table(Table,1) ->
+	insert({Table,1,over});
+init_table(Table,N) ->
+	insert({Table,N,a}),
+	init_table(Table,N - 1).
+
 insert(Value) ->
   operater(fun mnesia:write/1,Value).
 
@@ -93,24 +75,28 @@ delete(Record) ->
 	operater(fun mnesia:delete_object/1,Record).
   
 clean_table(Table) ->
-  {_,T1,_} = erlang:now(),
   First_key = operater(fun mnesia:first/1,Table),
 	io:format("first key ~p~n",[First_key]),
-  delete_all(Table,First_key),
-  {_,T2,_} = erlang:now(),
-  T2 - T1.
+  delete_all(Table,First_key).
 
 delete_all(Table,{atomic,'$end_of_table'}) ->
   over;
 delete_all(Table,{atomic,K}) ->
-	io:format("delete: ~p~n",[K]),
 	Next_key = operater(fun mnesia:next/2,Table,K),
 	operater(fun mnesia:delete/1,{Table,K}),
 	delete_all(Table,Next_key).
 
-operater(Op,Table,K) ->
+next_n(Table,K,1,All_key) ->
+				{atomic,Next_key} = operater(fun mnesia:next/2,Table,K),
+				[Next_key | All_key];
+next_n(Table,K,N,All_key) ->
+				{atomic,Next_key} = operater(fun mnesia:next/2,Table,K),
+				io:format("next key : ~p~n",[Next_key]),
+				next_n(Table,Next_key,N-1,[Next_key | All_key]).
+   
+operater(Op,Table,Keys) ->
   F = fun() ->
-        Op(Table,K)
+			  Op(Table,Keys)
   end,
   mnesia:transaction(F).
 	
