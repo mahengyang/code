@@ -198,8 +198,8 @@ end=`date`
 end=`date -d  "$end" +%s`
 
 runtime=`expr $end - $begin`
-if [ $runtime -le 60 ] || [ ! -a "$reportPath/images/graphes-HTTP_CODE-rate.png" ]; then
-  echo "it seems just a temp, $reportPath will be deleted"
+if [ $runtime -le 60 ]; then
+  echo "runtime is $runtime, seems like temp, $reportPath will be deleted"
   rm -rf $reportPath
 else
   newReport="<a href=\"./log/$currentTest\">$currentTest -- api:${api%%\?*} -- loop:$loop user:$user duration:$duration thinktime:$thinktime maxuser:$maxuser</a>\n<br>\n<img src=\"./log/$currentTest/images/graphes-Transactions-rate_tn.png\" alt=\"http_code_rate\" />\n<img src=\"./log/$currentTest/images/graphes-Perfs-mean_tn.png\" alt=\"perfs-meann\" />\n<br>"

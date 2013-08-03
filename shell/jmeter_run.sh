@@ -81,14 +81,6 @@ while [ $# -gt 0 ]; do
       ;;
   esac
 done
-processName="jmeter"
-pid=`ps aux | grep $processName | grep -v grep | awk '{print $2}'`
-#convert from string to array
-pid=($pid)
-if [ ${#pid[*]} -gt 3 ]; then
-  echo "warning!!! a jmeter process is running,please wait"
-  exit 1
-fi
 
 #env
 jmeterHome="/usr/local/bin/apache-jmeter-2.9"
