@@ -9,7 +9,7 @@ defaultTestFile="$HOME/tsung_test.xml"
 defaultUser=10
 defaultDuration=20
 defaultThinktime=1  # s
-defaultServer="LDKJSERVER0007"
+defaultServer="LDKJSERVER0012"
 defaultPort=9002
 defaultApi="/v2/stest5"
 defaultMethod="GET"
@@ -100,26 +100,11 @@ if [ ${#pid[*]} -gt 3 ]; then
   exit 1
 fi
 #################restart play server
-ssh LDKJSERVER0007 << EOF
-pid1="\`ps aux | grep play | grep -v grep | awk '{print \$2}'\`"
-#pid is not null indicate play was on
-if [ -n "\$pid1" ] ; then
-  echo "stop play..."
-  "$scriptPath/stop-play.sh"
-  sleep 2
-  pid2="\`ps aux | grep play | grep -v grep | awk '{print \$2}'\`"
-  if [ "\$pid2" == "\$pid1" ] ; then
-    echo "can not stop play,force kill it !!!"
-    kill "\$pid1"
-    sleep 3
-  fi
-fi
+ssh LDKJSERVER0012 << EOF
+"$scriptPath/stop-play-test.sh"
+sleep 2
 echo "start play..."
-"$scriptPath/start-play.sh"
-pid3="\`ps aux | grep play | grep -v grep | awk '{print \$2}'\`"
-if [ ! -n "\$pid3" ] ; then
-  echo "can not start play !!!"  
-fi
+"$scriptPath/start-play-test.sh"
 exit
 EOF
 #################set assign value or set default if has no param
@@ -156,7 +141,7 @@ params=( \
   ["probabilityGet"]=$probabilityGet \
   ["probabilityPOST"]=$probabilityPOST
   )
-echo "make tsung report path $reportPath"
+echo "make tsung report directory $reportPath"
 mkdir -p $reportPath
 #################prepare test file
 cp $testFile $reportPath
@@ -179,7 +164,7 @@ do
 done
 
 #start jmeter 
-$jmeterRun -s $server -p $port -u 1 -r 1 -t 100000000 -l 2 -x "1$port" &
+$jmeterRun -s LDKJSERVER0012 -p 9002 -u 1 -r 1 -t 100000000 -l 2 -x 19002 &
 #start tsung 
 tsung -f $currentTestFile start &
 
@@ -203,5 +188,6 @@ if [ $runtime -le 60 ]; then
   rm -rf $reportPath
 else
   newReport="<a href=\"./log/$currentTest\">$currentTest -- api:${api%%\?*} -- loop:$loop user:$user duration:$duration thinktime:$thinktime maxuser:$maxuser</a>\n<br>\n<img src=\"./log/$currentTest/images/graphes-Transactions-rate_tn.png\" alt=\"http_code_rate\" />\n<img src=\"./log/$currentTest/images/graphes-Perfs-mean_tn.png\" alt=\"perfs-meann\" />\n<br>"
+  #insert one line before </body>
   sed -i "/\/body/i\\${newReport}" $HOME/.tsung/index.html
 fi
