@@ -1,6 +1,8 @@
 -module(test).
--export([clean_batch_table/2,delete_batch/3,init_table/2,example/1,select/2,next_n/4,operater/3,operater/2,clean_table/1,delete/1,qengin/1,paste/2,insert/1,parse/1]).
+-export([clean_batch_table/2,delete_batch/3,init_table/2,example/1,select/2,next_n/4,operater/5,operater/4,operater/3,operater/2,clean_table/1,delete/1,qengin/1,paste/2,insert/1,parse/1]).
 -include_lib("stdlib/include/qlc.hrl").
+-record(md,{id,name}).
+%% eval string to code
 parse(S) ->
     {ok,Scanned,_} = erl_scan:string(S),
     {ok,Parsed} = erl_parse:parse_exprs(Scanned),
@@ -119,6 +121,18 @@ next_n(Table, K, N, All_key) ->
 batch(Table,Op,Keys) ->
   F = fun() ->
 				[Op(Table,K,sticky_write) || K <- Keys]
+  end,
+  mnesia:transaction(F).
+
+operater(Op,Table,V1,V2,V3) ->
+  F = fun() ->
+			  Op(Table,V1,V2,V3)
+  end,
+  mnesia:transaction(F).
+
+operater(Op,Table,V1,V2) ->
+  F = fun() ->
+			  Op(Table,V1,V2)
   end,
   mnesia:transaction(F).
 
