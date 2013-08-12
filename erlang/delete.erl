@@ -1,7 +1,17 @@
 -module(delete).
--export([delete/1,batch_delete/2]).
+-export([make_cursor/0,get_next/1,del_cursor/1,delete/1,batch_delete/2]).
 -include_lib("stdlib/include/qlc.hrl").
 -record(md,{id,name}).
+
+make_cursor() ->
+    QD = qlc:sort(mnesia:table(md, [{traverse, select}])),
+    mnesia:activity(async_dirty, fun qlc:cursor/1,[QD]).
+
+get_next(Cursor) ->
+		mnesia:activity(async_dirty, fun qlc:next_answers/2,[Cursor,5]).
+
+del_cursor(Cursor) ->
+    qlc:delete_cursor(Cursor).
 
 batch_delete(Id,Limit) ->
 				Match_head = #md{id='$1',name='$2'},
