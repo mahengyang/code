@@ -8,10 +8,10 @@ do
     api=`cat "$desdir/$dirlist/test.env" | grep api:`
     #api contains ?
     api=${api%%\?*}
-    echo "<a href=\"./log/$dirlist\">$dirlist -- $api -- `echo $testenv | xargs`</a>"
+    echo "<a href=\"log/$dirlist\">$dirlist -- $api -- `echo $testenv | xargs`</a>"
     echo "<br>"
-    echo "<img src=\"./log/$dirlist/images/graphes-Transactions-rate_tn.png\" alt=\"http_code_rate\" />"
-    echo "<img src=\"./log/$dirlist/images/graphes-Perfs-mean_tn.png\" alt=\"perfs-meann\" />"
+    echo "<img src=\"log/$dirlist/images/graphes-Transactions-rate_tn.png\" alt=\"http_code_rate\" />"
+    echo "<img src=\"log/$dirlist/images/graphes-Perfs-mean_tn.png\" alt=\"perfs-meann\" />"
     echo "<br>"
   fi
 done

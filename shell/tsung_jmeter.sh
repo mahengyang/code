@@ -175,7 +175,13 @@ jmeter_pid=$!
 tsung -f $currentTestFile start &
 tsung_pid=$!
 wait_time=`expr 2 \* $loop`
-( sleep $wait_time; echo "timeout,tsung will be killed"; kill -9 $tsung_pid ;sleep 1;kill -9 $(getPid tsung) ) &
+
+( sleep $wait_time; \
+  echo "timeout,tsung will be killed:$tsung_pid"; \
+  kill -9 $tsung_pid ; \
+  sleep 1; \
+  echo "residual tsung:$(getPid tsung_test.xml)"; \
+  kill -9 $(getPid tsung_test.xml) ) &
 
 begin=`date`
 begin=`date -d  "$begin" +%s`
@@ -183,10 +189,10 @@ begin=`date -d  "$begin" +%s`
 wait $tsung_pid > /dev/null 2>&1
 cd $reportPath
 /usr/local/lib/tsung/bin/tsung_stats.pl > /dev/null 2>&1
-cd
+
 #stop jmeter when tsung is complete
 /usr/local/bin/apache-jmeter-2.9/bin/stoptest.sh
-wait %1
+wait $jmeter_pid
 
 end=`date`
 end=`date -d  "$end" +%s`
