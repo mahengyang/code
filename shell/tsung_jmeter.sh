@@ -4,6 +4,10 @@ jmeterRun="./jmeter_run.sh"
 scriptPath="/usr/local/apps/DmCloud/shared/scripts"
 currentTest=`date +%Y%m%d-%H%M`
 reportPath="$HOME/.tsung/log/$currentTest"
+echo "make tsung report directory $reportPath"
+mkdir -p $reportPath
+sleep 1
+[ -d "$reportPath" ] || ( echo "create failed";exit )
 #################default value for all parameters
 defaultTestFile="$HOME/tsung_test.xml"
 defaultUser=50
@@ -145,9 +149,6 @@ params=( \
   ["probabilityGet"]=$probabilityGet \
   ["probabilityPOST"]=$probabilityPOST
   )
-echo "make tsung report directory $reportPath"
-mkdir -p $reportPath
-[ -d "$reportPath" ] || ( echo "create failed";exit )
 #################prepare test file
 cp $testFile $reportPath
 currentTestFile="$reportPath/tsung_test.xml"
