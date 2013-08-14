@@ -180,8 +180,10 @@ wait_time=`expr 2 \* $loop`
   echo "timeout,tsung will be killed:$tsung_pid"; \
   kill -9 $tsung_pid ; \
   sleep 1; \
-  echo "residual tsung:$(getPid tsung_test.xml)"; \
-  kill -9 $(getPid tsung_test.xml) ) &
+  residual_tsung=$(getPid tsung_test.xml); \
+  echo "residual tsung:$residual_tsung"; \
+  [ -n "$residual_tsung" ] && kill -9 $residual_tsung ) &
+deamon_pid=$!
 
 begin=`date`
 begin=`date -d  "$begin" +%s`
@@ -193,10 +195,10 @@ cd $reportPath
 #stop jmeter when tsung is complete
 /usr/local/bin/apache-jmeter-2.9/bin/stoptest.sh
 wait $jmeter_pid
+kill $deamon_pid > /dev/null 2>&1
 
 end=`date`
 end=`date -d  "$end" +%s`
-
 runtime=`expr $end - $begin`
 if [ $runtime -le 60 ]; then
   echo "runtime is $runtime, seems like temp, $reportPath will be deleted"
