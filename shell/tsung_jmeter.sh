@@ -6,14 +6,14 @@ currentTest=`date +%Y%m%d-%H%M`
 reportPath="$HOME/.tsung/log/$currentTest"
 #################default value for all parameters
 defaultTestFile="$HOME/tsung_test.xml"
-defaultUser=10
-defaultDuration=20
+defaultUser=50
+defaultDuration=30
 defaultThinktime=1  # s
 defaultServer="LDKJSERVER0012"
 defaultPort=9002
 defaultApi="/v2/stest5"
 defaultMethod="GET"
-defaultloop=30
+defaultloop=40
 defaultMaxuser=8000
 defaultProbabilityGet=100
 defaultContents='{"u":"a","mcc":460,"n":"a","by":0,"mnc":1,"lnt":116.345031,"cid":4936921,"lat":39.980952,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}'
@@ -91,10 +91,11 @@ while [ $# -gt 0 ]; do
   esac
 done
 #################check if tsung has aready run
-processName="tsung"
-pid=`ps aux | grep $processName | grep -v grep | awk '{print $2}'`
+getPid(){
+  ps aux | grep $1 | grep -v grep | awk '{print $2}'
+}
 #convert from string to array
-pid=($pid)
+pid=$(getPid tsung)
 if [ ${#pid[*]} -gt 3 ]; then
   echo "warning!!! a $processName process is running,please wait"
   exit 1
@@ -105,6 +106,7 @@ ssh LDKJSERVER0012 << EOF
 sleep 2
 echo "start play..."
 "$scriptPath/start-play-test.sh"
+sleep 5
 exit
 EOF
 #################set assign value or set default if has no param
@@ -122,6 +124,8 @@ contents=${contents:=$defaultContents}
 #ignore lower and upper, attention: [[ ]]
 if [[ $method = [Gg][Ee][Tt] ]]; then
   probabilityGet=100
+else
+  probabilityGet=0
 fi
 probabilityGet=${probabilityGet:=$defaultProbabilityGet}
 probabilityPOST=`expr 100 - $probabilityGet`
@@ -143,6 +147,7 @@ params=( \
   )
 echo "make tsung report directory $reportPath"
 mkdir -p $reportPath
+[ -d "$reportPath" ] || ( echo "create failed";exit )
 #################prepare test file
 cp $testFile $reportPath
 currentTestFile="$reportPath/tsung_test.xml"
@@ -164,16 +169,20 @@ do
 done
 
 #start jmeter 
-$jmeterRun -s LDKJSERVER0012 -p 9002 -u 1 -r 1 -t 100000000 -l 2 -x 19002 &
+$jmeterRun -s LDKJSERVER0012 -p 9002 -u 1 -r 1 -t 100000000 -l 2 -x 19002 > /dev/null 2>&1 &
+jmeter_pid=$!
 #start tsung 
 tsung -f $currentTestFile start &
+tsung_pid=$!
+wait_time=`expr 2 \* $loop`
+( sleep $wait_time; echo "timeout,tsung will be killed"; kill -9 $tsung_pid ;sleep 1;kill -9 $(getPid tsung) ) &
 
 begin=`date`
 begin=`date -d  "$begin" +%s`
 
-wait %2
+wait $tsung_pid > /dev/null 2>&1
 cd $reportPath
-/usr/local/lib/tsung/bin/tsung_stats.pl
+/usr/local/lib/tsung/bin/tsung_stats.pl > /dev/null 2>&1
 cd
 #stop jmeter when tsung is complete
 /usr/local/bin/apache-jmeter-2.9/bin/stoptest.sh
