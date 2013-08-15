@@ -138,6 +138,7 @@ params=( \
   ["api"]=$api \
   ["loop"]=$loop \
   ["contents"]=$contents \
+  ["method"]=$method \
   )
 #################prepare test file
 cp $testFile $temp_report_path
@@ -194,8 +195,6 @@ kill $deamon_pid > /dev/null 2>&1
 
 end=`date`
 end=`date -d  "$end" +%s`
-
-
 runtime=`expr $end - $begin`
 if [ $runtime -le 60 ]; then
   echo "runtime is $runtime, seems like temp, $current_tsung_path will be deleted"

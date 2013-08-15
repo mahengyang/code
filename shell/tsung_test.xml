@@ -25,26 +25,29 @@
 <sessions>
     <session name="test" probability="100" type="ts_http">
       <for from="1" to="@loop" incr="1" var="counter">
-        <setdynvars sourcetype="eval"
-                    code="fun() -> random:uniform() end.">
+        <setdynvars sourcetype="file" fileid="/tmp/users" delimiter="," order="random">
+          <var name="user_id" />
+          <var name="passwd" />
+          <var name="auth_token" />
+        </setdynvars>
+        <setdynvars sourcetype="eval" code="fun({Pid,DynVars}) -> random:uniform() end.">
           <var name="decimal" />
         </setdynvars>
         <setdynvars sourcetype="random_number" start="1" end="10000">
            <var name="int_1_10000" />
         </setdynvars>
-        <setdynvars sourcetype="random_number" start="10000000" end="11000000">
-           <var name="user_id" />
-        </setdynvars>
         <setdynvars sourcetype="random_string" length="10">
            <var name="string_10" />
         </setdynvars>
-
+        <setdynvars sourcetype="random_number" start="20000000000" end="30000000000">
+           <var name="int_11" />
+        </setdynvars>
         <request subst="true">
           <http url="@api" method="@method" contents="@contents" version="1.1">
             <http_header name="Authorization" value="def7c5b70f04287effaaa402ecf9cd51"/>
             <http_header name="X-Devid" value="0"/>
             <http_header name="X-UserTag" value="208601471367"/>
-            <http_header name="Cookie" value="authToken=bfb7f30010faefa67fb3bb23b0a798fb; Path=/"/>
+            <http_header name="Cookie" value="authToken=%%_auth_token%%; Path=/"/>
             <http_header name="Content-Type" value="application/json"/>
           </http>
         </request>

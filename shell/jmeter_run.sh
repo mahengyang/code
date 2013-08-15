@@ -3,16 +3,13 @@
 defaultTestFile="$HOME/jmeter_test.jmx"
 defaultUser=3000
 tsung_log_path="$HOME/.tsung/log"
-#s
-defaultRamptime=100
-#ms
-defaultThinktime=10000
+defaultRamptime=100 # second
+defaultThinktime=10000 #millonsecond
 defaultServer="LDKJSERVER0007"
 defaultPort=9002
 defaultApi="/v2/locations/checkin"
 defaultMethod="POST"
-#1+port
-defaultJmxPort="1$defaultPort"
+defaultJmxPort="1$defaultPort" # 19002
 defaultLoopCount=50
 
 while [ $# -gt 0 ]; do
@@ -146,8 +143,8 @@ echo "create report: PerfMon"
 java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/PerfMon.png" --input-jtl $jmeterJtl --plugin-type PerfMon --width 3200 --height 700 > /dev/null 2>&1
 java -jar $CMDRunner --tool Reporter --generate-csv "$reportPath/PerfMon.csv" --input-jtl $jmeterJtl --plugin-type PerfMon > /dev/null 2>&1
 
-current_test=`ll $tsung_log_path | tail -n 2 | awk -F' ' '/./ {print $9}'`
-current_test="$tsung_log_path/$current_test"
+current_tsung_code=`ls -l $tsung_log_path | awk -F' ' '{print $6,$7,$8,$9}' | sort | tail -n 1 |cut -d' ' -f4`
+current_tsung_path="$tsung_log_path/$current_tsung_code"
 
-mv $reportPath/PerfMon.* "$current_test"
-rm -rf $current_test
+mv $reportPath/PerfMon.* $current_tsung_path
+rm -rf $reportPath

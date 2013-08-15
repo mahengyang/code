@@ -1,7 +1,3 @@
-POST /v2/locations/checkin {"u":"a","mcc":460,"n":"a","by":0,"mnc":1,"lnt":116.345031,"cid":4936921,"lat":39.980952,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}
-POST /v2/10000001/sharings {"on":,"n":,"p":,}
-GET /v2/stest5
-GET /v2/users/9707279/profile?dId=35513605339286910683F9028B1&amp;filter=version
 GET /
 GET /v2/servers
 GET /v2/stest
@@ -13,104 +9,105 @@ GET /v2/stest6
 GET /v2/stest7
 GET /v2/stest8
 # Image
-GET /v2/images/:_type/:id.jpg
-POST /v2/images
-DELETE /v2/images/:id
+# POST /v2/images 
+GET /v2/images/a/59.jpg
+# DELETE /v2/images/:id
 # User CRUD
-GET /v2/users {"type":"6","vn":"1","code":"%%_string_10%%","dId":"999","imei":"1","pId":"111","vc":8,"mac":"111","ch":"2"}
-GET /v2/users/:id
-POST /v2/users
-PUT /v2/users/:id
-DELETE /v2/users/:id
+POST /v2/users {"type":"6","vn":"1","code":"%%_string_10%%","dId":"999","imei":"1","pId":"111","vc":8,"mac":"111","ch":"2"}
+GET /v2/users?v=1&limit=10&offset=0
+GET /v2/users/%%_user_id%%
+PUT /v2/users/%%_user_id%% {"zp":"tsung","vc":0.1,"vn":"tsung"}
+DELETE /v2/users/%%_user_id%%
 # V1User CRUD
-POST /v2/v1users
+POST /v2/v1users {"regTime":"1 1,2011 1:1:1 1","username":"%%_string_10%%","password":"xxx"}
 #create User identifying code
-POST /v2/verifications
+# POST /v2/verifications 
 # Session
-POST /v2/sessions
-DELETE /v2/sessions/:id
+POST /v2/sessions {"id":%%_user_id%%,"zp":%%_passwd%%,"vc":0.1,"vn":"tsung"}
+DELETE /v2/sessions/%%_user_id%%
 # User profile
-GET /v2/users/:uid/profile
-PUT /v2/users/:uid/profile
+GET /v2/users/%%_user_id%%/profile
+PUT /v2/users/%%_user_id%%/profile {"pver":1,"gd":"man","fn":"tsung","dn":"%%_string_10%%","ph":"%%int_11%%"}
 # User relationship
-GET /v2/users/:id/following
-GET /v2/users/:id/followers
-GET /v2/users/:id/friends
-GET /v2/users/:id/rs
-PUT /v2/users/:id/following
-PUT /v2/users/:id/followers
-PUT /v2/users/:id/friends
+PUT /v2/users/%%_user_id%%/following {"+":"10000001,10000002,10000003","-":"10000001"}
+PUT /v2/users/%%_user_id%%/followers {"+":"10000001,10000002,10000003","-":"10000001"}
+PUT /v2/users/%%_user_id%%/friends {"+":"10000001,10000002,10000003","-":"10000001"}
 PUT /v2/users/:id/following/:fid
-fid:String)
+GET /v2/users/%%_user_id%%/following?Limit=30
+GET /v2/users/%%_user_id%%/followers?limit=30
+GET /v2/users/%%_user_id%%/friends?limit=30
+GET /v2/users/%%_user_id%%/rs?B=10000001
+
 # User wishes
-GET /v2/users/:id/wishes
-GET /v2/users/:id/wishes/:wid
-POST /v2/users/:id/wishes
-PUT /v2/users/:id/wishes/:wid
-DELETE /v2/users/:id/wishes/:wid
+POST /v2/users/%%_user_id%%/wishes {"wver":0.1,"fsid":"%%_int_1_10000%%","title":"%%_string_10%%","c":"%%_string_10%%","st":0,"cat":3}
+GET /v2/users/%%_user_id%%/wishes
+GET /v2/users/%%_user_id%%/wishes/%%_int_1_10000%%
+PUT /v2/users/%%_user_id%%/wishes/:wid {"wver":0.1,"fsid":"%%_int_1_10000%%","title":"%%_string_10%%","c":"%%_string_10%%","st":1,"cat":3}
+DELETE /v2/users/%%_user_id%%/wishes/%%_int_1_10000%%
+
 # User sharing
-GET /v2/users/10000025/sharings?dId=35513605339286910683F9028B1&offset=0&limit=10&filter=proj1
-GET /v2/users/:id/sharings
-GET /v2/users/:id/sharings/:sid
-POST /v2/users/:id/sharings
-PUT /v2/users/:id/sharings/:sid
-DELETE /v2/users/:id/sharings/:sid
+GET /v2/users/%%_user_id%%/sharings?dId=35513605339286910683F9028B1&offset=0&limit=10&filter=proj1
+POST /v2/users/%%_user_id%%/sharings {"sver":0.1,"on":"%%_string_10%%","cat":0,"n":"%%_string_10%%","p":"/usr","by":0}
+GET /v2/users/%%_user_id%%/sharings/%%_int_1_10000%%
+# PUT /v2/users/:id/sharings/:sid
+# DELETE /v2/users/:id/sharings/:sid
 # Propagations
-POST /v2/propagations
+POST /v2/propagations {"t":7,"fId":"%%_int_1_10000%%","tId":"%%_int_1_10000%%","r":0,"v":0.1,}
 # Events
-POST /v2/events
+POST /v2/events {"a":1,"nt":1,"v":0.1,"ch":"2","imei":"%%_string_10%%"}
 # For lbs findNear
-POST /v2/locations/checkin
-POST /v2/locations/updateuser
+POST /v2/locations/checkin {"u":"a","mcc":460,"n":"%%_user_id%%","by":0,"mnc":1,"lnt":116.345031,"cid":4936921,"lat":39.980952,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}
+POST /v2/locations/updateuser {"u":"a","mcc":460,"n":"%%_user_id%%","by":0,"mnc":1,"lnt":%%_decimal%%,"cid":4936921,"lat":%%_decimal%%,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}
+POST /v2/locations/near {"u":"a","mcc":460,"n":"%%_user_id%%","by":0,"mnc":1,"lnt":%%_decimal%%,"cid":4936921,"lat":%%_decimal%%,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}
 # Bindings
-GET /v2/bindings
-POST  /v2/bindings
-DELETE /v2/bindings
+POST  /v2/bindings {"t":7,"i":"%%_string_10","n":"%%_string_10%%","a":1,}
+GET /v2/bindings?t=7
+# DELETE /v2/bindings
 # OAuth 2.0: for testing only
-GET /v2/oauth_redirect
+# GET /v2/oauth_redirect
 # Push
 POST  /v2/push
 # Sharing wants/gains
-GET /v2/sharings/:sid/stats
-POST  /v2/sharings/:sid/stats
+POST  /v2/sharings/%%_user_id%%/stats {"to":"%%_user_id%%","t":3,"m":{"a":""%%_string_10%%""}}
+GET /v2/sharings/%%_user_id%%/stats
 # Trends
 GET /v2/trends
 # Batch
-POST  /v2/batch
+# POST /v2/batch
 # Transfers
-GET /v2/transfers
-POST /v2/transfers
-# Sharing from
-GET /v2/users/:id/sfrom
-# Sharing to
-GET /v2/users/:id/sto
-# Hots
-GET /v2/hots
-GET /v2/hots/:id
-POST /v2/hots
-PUT /v2/hots/:id
-DELETE /v2/hots/:id
-# Hot contents
-GET /v2/hotcontents
-GET /v2/hotcontents/:id
-GET /v2/hotcontents/:id/friends
-GET /v2/hotcontents/:id/danas
-POST /v2/hotcontents
-PUT /v2/hotcontents/:id
-DELETE /v2/hotcontents/:id
-# Hot users
-GET /v2/hotusers
-GET /v2/hotusers/:id
-POST /v2/hotusers
-PUT /v2/hotusers/:id
-DELETE /v2/hotusers/:id
-# Config
-GET /v2/Config
-# Devices
-POST /v2/devices
-# STags
-GET /v2/users/:uid/stags
-GET /v2/users/:uid/stags/:id
-POST /v2/users/:uid/stags
-PUT /v2/users/:uid/stags/:id
-DELETE /v2/users/:uid/stags/:id
+# GET /v2/transfers
+# POST /v2/transfers
+# # Sharing from
+# GET /v2/users/:id/sfrom
+# # Sharing to
+# GET /v2/users/:id/sto
+# # Hots
+# GET /v2/hots
+# GET /v2/hots/:id
+# POST /v2/hots
+# PUT /v2/hots/:id
+# DELETE /v2/hots/:id
+# # Hot contents
+# GET /v2/hotcontents
+# GET /v2/hotcontents/:id
+# GET /v2/hotcontents/:id/friends
+# GET /v2/hotcontents/:id/danas
+# POST /v2/hotcontents
+# PUT /v2/hotcontents/:id
+# DELETE /v2/hotcontents/:id
+# # Hot users
+# GET /v2/hotusers
+# GET /v2/hotusers/:id
+# POST /v2/hotusers
+# PUT /v2/hotusers/:id
+# DELETE /v2/hotusers/:id
+# # Config
+# GET /v2/Config
+# # Devices
+# POST /v2/devices
+# # STags
+# GET /v2/users/:uid/stags
+# GET /v2/users/:uid/stags/:id
+# POST /v2/users/:uid/stags
+# PUT /v2/users/:uid/stags/:id
+# DELETE /v2/users/:uid/stags/:id
