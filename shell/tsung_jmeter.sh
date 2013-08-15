@@ -4,18 +4,17 @@ jmeterRun="./jmeter_run.sh"
 scriptPath="/usr/local/apps/DmCloud/shared/scripts"
 tsung_log_path="$HOME/.tsung/log"
 #################default value for all parameters
-defaultTestFile="$HOME/tsung_test.xml"
+defaultTestFile="./tsung_test.xml"
 defaultUser=50
 defaultDuration=30
-defaultThinktime=1  # s
+defaultThinktime=1  # second
 defaultServer="LDKJSERVER0012"
 defaultPort=9002
 defaultApi="/v2/stest5"
 defaultMethod="GET"
 defaultloop=40
 defaultMaxuser=8000
-defaultProbabilityGet=100
-defaultContents='{"u":"a","mcc":460,"n":"a","by":0,"mnc":1,"lnt":116.345031,"cid":4936921,"lat":39.980952,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}'
+defaultContents='{"u":"a","mcc":460,"n":"10000001","by":0,"mnc":1,"lnt":116.345031,"cid":4936921,"lat":39.980952,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}'
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -99,6 +98,7 @@ if [ ${#pid[*]} -gt 3 ]; then
   echo "warning!!! a $processName process is running,please wait"
   exit 1
 fi
+echo "==================begin==================="
 #################restart play server
 ssh LDKJSERVER0012 << EOF
 "$scriptPath/stop-play-test.sh"
@@ -120,14 +120,6 @@ method=${method:=$defaultMethod}
 loop=${loop:=$defaultloop}
 maxuser=${maxuser:=$defaultMaxuser}
 contents=${contents:=$defaultContents}
-#ignore lower and upper, attention: [[ ]]
-if [[ $method = [Gg][Ee][Tt] ]]; then
-  probabilityGet=100
-else
-  probabilityGet=0
-fi
-probabilityGet=${probabilityGet:=$defaultProbabilityGet}
-probabilityPOST=`expr 100 - $probabilityGet`
 
 currentTest=`date +%Y%m%d-%H%M`
 temp_report_path="/tmp/tsung/$currentTest"
@@ -146,8 +138,6 @@ params=( \
   ["api"]=$api \
   ["loop"]=$loop \
   ["contents"]=$contents \
-  ["probabilityGet"]=$probabilityGet \
-  ["probabilityPOST"]=$probabilityPOST
   )
 #################prepare test file
 cp $testFile $temp_report_path
@@ -191,7 +181,10 @@ begin=`date -d  "$begin" +%s`
 
 wait $tsung_pid > /dev/null 2>&1
 
-cd $temp_report_path
+current_tsung_code=`ls -l $tsung_log_path | awk -F' ' '{print $6,$7,$8,$9}' | sort | tail -n 1 |cut -d' ' -f4`
+current_tsung_path="$tsung_log_path/$current_tsung_code"
+
+cd $current_tsung_path
 /usr/local/lib/tsung/bin/tsung_stats.pl > /dev/null 2>&1
 
 #stop jmeter when tsung is complete
@@ -202,18 +195,16 @@ kill $deamon_pid > /dev/null 2>&1
 end=`date`
 end=`date -d  "$end" +%s`
 
-current_tsung_code=`ls -l $tsung_log_path | awk -F' ' '{print $6,$7,$8,$9}' | sort | tail -n 1 |cut -d' ' -f4`
-current_tsung_path="$tsung_log_path/$current_tsung_code"
-echo "tsung test path is: $current_tsung_path"
 
 runtime=`expr $end - $begin`
 if [ $runtime -le 60 ]; then
-  echo "runtime is $runtime, seems like temp, $temp_report_path will be deleted"
+  echo "runtime is $runtime, seems like temp, $current_tsung_path will be deleted"
   rm -rf "$current_tsung_path"
 else
-  mv $temp_report_path/* $current_test_path
+  mv $temp_report_path/* $current_tsung_path
   newReport="<a href=\"./log/$current_tsung_code\">$current_tsung_code -- api:${api%%\?*} -- loop:$loop user:$user duration:$duration thinktime:$thinktime maxuser:$maxuser</a>\n<br>\n<img src=\"./log/$current_tsung_code/images/graphes-Transactions-rate_tn.png\" alt=\"http_code_rate\" />\n<img src=\"./log/$current_tsung_code/images/graphes-Perfs-mean_tn.png\" alt=\"perfs-meann\" />\n<br>"
   #insert one line before </body>
   sed -i "/\/body/i\\${newReport}" $HOME/.tsung/index.html
 fi
 rm -rf $temp_report_path
+echo "==================end==================="
