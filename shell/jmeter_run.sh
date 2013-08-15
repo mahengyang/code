@@ -2,6 +2,7 @@
 #default parameters
 defaultTestFile="$HOME/jmeter_test.jmx"
 defaultUser=3000
+tsung_log_path="$HOME/.tsung/log"
 #s
 defaultRamptime=100
 #ms
@@ -89,8 +90,10 @@ stopTest="$jmeterHome/bin/stoptest.sh"
 CMDRunner="$jmeterHome/lib/ext/CMDRunner.jar"
 
 currentTest=`date +%Y%m%d-%H%M`
-reportPath="$HOME/.tsung/log/$currentTest"
-# mkdir -p $reportPath
+reportPath="/tmp/jmeter/$currentTest"
+mkdir -p $reportPath
+[ -d "$reportPath" ] || ( echo "create failed";exit )
+
 jmeterLog="$reportPath/request.jtl"
 jmeterJtl="$reportPath/PerfMon.jtl"
 
@@ -142,3 +145,9 @@ wait %1
 echo "create report: PerfMon"
 java -jar $CMDRunner --tool Reporter --generate-png "$reportPath/PerfMon.png" --input-jtl $jmeterJtl --plugin-type PerfMon --width 3200 --height 700 > /dev/null 2>&1
 java -jar $CMDRunner --tool Reporter --generate-csv "$reportPath/PerfMon.csv" --input-jtl $jmeterJtl --plugin-type PerfMon > /dev/null 2>&1
+
+current_test=`ll $tsung_log_path | tail -n 2 | awk -F' ' '/./ {print $9}'`
+current_test="$tsung_log_path/$current_test"
+
+mv $reportPath/PerfMon.* "$current_test"
+rm -rf $current_test
