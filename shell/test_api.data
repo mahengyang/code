@@ -19,11 +19,11 @@ GET /v2/users/%%_user_id%%
 PUT /v2/users/%%_user_id%% {"zp":"tsung","vc":0.1,"vn":"tsung"}
 DELETE /v2/users/%%_user_id%%
 # V1User CRUD
-POST /v2/v1users {"regTime":"1 1,2011 1:1:1 1","username":"%%_string_10%%","password":"xxx"}
+POST /v2/v1users {"regTime":"1 1,2011 1:1:1 1","username":"%%_string_10%%","password":"tsung"}
 #create User identifying code
 # POST /v2/verifications 
 # Session
-POST /v2/sessions {"id":%%_user_id%%,"zp":%%_passwd%%,"vc":0.1,"vn":"tsung"}
+POST /v2/sessions {"id":%%_user_id%%,"zp":"%%_passwd%%","vc":0.1,"vn":"tsung"}
 DELETE /v2/sessions/%%_user_id%%
 # User profile
 GET /v2/users/%%_user_id%%/profile
@@ -62,52 +62,52 @@ POST /v2/locations/near {"u":"a","mcc":460,"n":"%%_user_id%%","by":0,"mnc":1,"ln
 # Bindings
 POST  /v2/bindings {"t":7,"i":"%%_string_10","n":"%%_string_10%%","a":1,}
 GET /v2/bindings?t=7
-# DELETE /v2/bindings
+DELETE /v2/bindings?t=7
 # OAuth 2.0: for testing only
 # GET /v2/oauth_redirect
 # Push
-POST  /v2/push
+POST  /v2/push {"to":"10000001,10000002","t":3,"m":{"followers":"from tsung"}}
 # Sharing wants/gains
 POST  /v2/sharings/%%_user_id%%/stats {"to":"%%_user_id%%","t":3,"m":{"a":""%%_string_10%%""}}
 GET /v2/sharings/%%_user_id%%/stats
 # Trends
 GET /v2/trends
 # Batch
-# POST /v2/batch
+POST /v2/batch {"r":{"s":0,"m":0,"u":"/v2/stest5"}}
 # Transfers
-# GET /v2/transfers
+# GET /v2/transfers 
 # POST /v2/transfers
-# # Sharing from
-# GET /v2/users/:id/sfrom
-# # Sharing to
-# GET /v2/users/:id/sto
-# # Hots
-# GET /v2/hots
-# GET /v2/hots/:id
-# POST /v2/hots
-# PUT /v2/hots/:id
-# DELETE /v2/hots/:id
-# # Hot contents
-# GET /v2/hotcontents
-# GET /v2/hotcontents/:id
-# GET /v2/hotcontents/:id/friends
-# GET /v2/hotcontents/:id/danas
-# POST /v2/hotcontents
-# PUT /v2/hotcontents/:id
-# DELETE /v2/hotcontents/:id
-# # Hot users
-# GET /v2/hotusers
-# GET /v2/hotusers/:id
-# POST /v2/hotusers
-# PUT /v2/hotusers/:id
-# DELETE /v2/hotusers/:id
-# # Config
-# GET /v2/Config
-# # Devices
-# POST /v2/devices
-# # STags
-# GET /v2/users/:uid/stags
-# GET /v2/users/:uid/stags/:id
-# POST /v2/users/:uid/stags
-# PUT /v2/users/:uid/stags/:id
-# DELETE /v2/users/:uid/stags/:id
+# Sharing from
+GET /v2/users/%%_user_id%%/sfrom
+# Sharing to
+GET /v2/users/%%_user_id%%/sto
+# Hots
+POST /v2/hots {"t":"%%_string_10%%","snip":"%%_string_10%%","cat":1,"r":%%_int_1_10000%%,"st":1,"stp":1}
+PUT /v2/hots/%%_int_1_10000%% {"t":"%%_string_10%%","snip":"%%_string_10%%","cat":1,"r":%%_int_1_10000%%,"st":1,"stp":1}
+GET /v2/hots/%%_int_1_10000%%
+GET /v2/hots
+DELETE /v2/hots/%%_int_1_10000%%
+# Hot contents
+POST /v2/hotcontents {"cat":4,"st":1,"stp":1,"pkg":"%%_string_10%%"}
+PUT /v2/hotcontents/%%_int_1_10000%% {"t":"%%_string_10%%","snip":"%%_string_10%%","cat":1,"r":%%_int_1_10000%%,"st":1,"stp":1}
+GET /v2/hotcontents?stp=1
+GET /v2/hotcontents/%%_int_1_10000%%
+GET /v2/hotcontents/%%_int_1_10000%%/friends
+GET /v2/hotcontents/%%_int_1_10000%%/danas
+DELETE /v2/hotcontents/%%_int_1_10000%%
+# Hot users
+POST /v2/hotusers {"zapyaId":"%%_user_id%%","#s":%%_int_1_10000%%}
+PUT /v2/hotusers/%%_user_id%% {"#s":%%_int_1_10000%%}
+GET /v2/hotusers
+GET /v2/hotusers/%%_user_id%%
+DELETE /v2/hotusers/%%_user_id%%
+# Config
+GET /v2/config/%%_int_1_10000%%
+# Devices
+POST /v2/devices {"os":1,"osv":"1.0","sw","1","bb":"1","v":"0.1","vc":2,"ven":"tsung","md":"tsung","ch":"tsung"}
+# STags
+POST /v2/users/%%_user_id%%/stags {"n":"tsung","snip":"%%_string_10%%"}
+PUT /v2/users/%%_user_id%%/stags/%%_int_1_10000%% {"n":"tsung","snip":"%%_string_10%%"}
+GET /v2/users/%%_user_id%%/stags
+GET /v2/users/%%_user_id%%/stags/%%_int_1_10000%%
+DELETE /v2/users/%%_user_id%%/stags/%%_int_1_10000%%
