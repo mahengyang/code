@@ -21,11 +21,14 @@
     </arrivalphase>
   </load>
 
-
-<sessions>
+  <options>
+    <option name="file_server" id="userfile" value="/tmp/users"/>
+  </options>
+  
+  <sessions>
     <session name="test" probability="100" type="ts_http">
       <for from="1" to="@loop" incr="1" var="counter">
-        <setdynvars sourcetype="file" fileid="/tmp/users" delimiter="," order="random">
+        <setdynvars sourcetype="file" fileid="userfile" delimiter="," order="random">
           <var name="user_id" />
           <var name="passwd" />
           <var name="auth_token" />

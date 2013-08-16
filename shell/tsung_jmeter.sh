@@ -201,7 +201,7 @@ if [ $runtime -le 60 ]; then
   rm -rf "$current_tsung_path"
 else
   mv $temp_report_path/* $current_tsung_path
-  newReport="<a href=\"./log/$current_tsung_code\">$current_tsung_code -- api:${api%%\?*} -- loop:$loop user:$user duration:$duration thinktime:$thinktime maxuser:$maxuser</a>\n<br>\n<img src=\"./log/$current_tsung_code/images/graphes-Transactions-rate_tn.png\" alt=\"http_code_rate\" />\n<img src=\"./log/$current_tsung_code/images/graphes-Perfs-mean_tn.png\" alt=\"perfs-meann\" />\n<br>"
+  newReport="<a href=\"./log/$current_tsung_code\">$current_tsung_code -- api:${api%%\?*} -- loop:$loop user:$user duration:$duration thinktime:$thinktime maxuser:$maxuser</a>\n<br>\n<img src=\"./log/$current_tsung_code/images/graphes-HTTP_CODE-rate_tn.png\" alt=\"http_code_rate\" /> <img src=\"./log/$current_tsung_code/images/graphes-Perfs-mean_tn.png\" alt=\"perfs-mean\" />\n<br>"
   #insert one line before </body>
   sed -i "/\/body/i\\${newReport}" $HOME/.tsung/index.html
 fi
