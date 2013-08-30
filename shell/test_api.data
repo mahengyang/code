@@ -55,7 +55,7 @@ POST /v2/propagations {"t":7,"fId":"%%_int_1_10000%%","tId":"%%_int_1_10000%%","
 # Events
 POST /v2/events {"a":1,"nt":1,"v":0.1,"ch":"2","imei":"%%_string_10%%"}
 # For lbs findNear
-POST /v2/locations/checkin {"u":"a","mcc":460,"n":"%%_user_id%%","by":0,"mnc":1,"lnt":%%_decimal%%,"cid":4936921,"lat":%%_decimal%%,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}
+POST /v2/locations/checkin {"u":"%%_user_id%%","mcc":460,"n":"%%_user_id%%","by":0,"mnc":1,"lnt":%%_decimal%%,"cid":4936921,"lat":%%_decimal%%,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}
 POST /v2/locations/updateuser {"u":"a","mcc":460,"n":"%%_user_id%%","by":0,"mnc":1,"lnt":%%_decimal%%,"cid":4936921,"lat":%%_decimal%%,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}
 POST /v2/locations/near {"u":"a","mcc":460,"n":"%%_user_id%%","by":0,"mnc":1,"lnt":%%_decimal%%,"cid":4936921,"lat":%%_decimal%%,"lac":41019,"dId":"35513605339286910683F9028B1","x":"3352--10683F9028B1-4075689767927285040"}
 # Bindings
@@ -97,7 +97,7 @@ DELETE /v2/hotcontents/%%_int_1_10000%%
 # Hot users
 POST /v2/hotusers {"zapyaId":"%%_user_id%%","#s":%%_int_1_10000%%}
 PUT /v2/hotusers/%%_user_id%% {"#s":%%_int_1_10000%%}
-GET /v2/hotusers
+GET /v2/hotusers?dId="999"&limit=20&offset=0
 GET /v2/hotusers/%%_user_id%%
 DELETE /v2/hotusers/%%_user_id%%
 # Config
