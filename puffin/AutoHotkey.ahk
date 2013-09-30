@@ -1,34 +1,61 @@
-; IMPORTANT INFO ABOUT GETTING STARTED: Lines that start with a
-; semicolon, such as this one, are comments.  They are not executed.
-
-; This script has a special filename and path because it is automatically
-; launched when you run the program directly.  Also, any text file whose
-; name ends in .ahk is associated with the program, which means that it
-; can be launched simply by double-clicking it.  You can have as many .ahk
-; files as you want, located in any folder.  You can also run more than
-; one .ahk file simultaneously and each will get its own tray icon.
-
-; SAMPLE HOTKEYS: Below are two sample hotkeys.  The first is Win+Z and it
-; launches a web site in the default browser.  The second is Control+Alt+N
-; and it launches a new Notepad window (or activates an existing one).  To
-; try out these hotkeys, run AutoHotkey again, which will load this file.
-
-^!n::
-IfWinExist Untitled - Notepad
-	WinActivate
-else
-	Run Notepad
-return
-
-; Note: From now on whenever you run AutoHotkey directly, this script
-; will be loaded.  So feel free to customize it to suit your needs.
-
-; Please read the QUICK-START TUTORIAL near the top of the help file.
-; It explains how to perform common automation tasks such as sending
-; keystrokes and mouse clicks.  It also explains more about hotkeys.
-
-; ===========================enyo=============================
+;;; Fn for acer
+/*
+sc178 up::
+    MsgBox % "push Fn"
+	return
+*/
 Capslock::Ctrl
 f1::Send, ^c
-f2::Send, ^v
+f2::
+	SetTitleMatchMode 2
+	If WinActive("Xshell") {
+	    Send, +{insert}
+	}else if WinActive("posh") or WinActive("cmd.exe") {
+		Send, RButton
+	}else{
+		Send, ^v
+	}
+	return
 APPSKEY::Send, ^w
+
+ActiveWin(title_name){
+	SetTitleMatchMode 2
+	If WinExist(title_name){
+	    WinActivate
+	}
+}
+
+;;; xshell
+#x::
+	ActiveWin("Xshell")
+return
+
+;;; git for zapya_cloud
+#z::
+	ActiveWin("posh~git ~ zapya_cloud")
+return
+
+;;; play debug
+#y::
+	ActiveWin("play debug")
+return
+
+;;; eclipse
+#e::
+	ActiveWin("Eclipse")
+return
+
+;;; sublime
+#u::
+	ActiveWin("Sublime")
+return
+
+;;; git extentions
+#i::
+	ActiveWin("Git Extentions")
+return
+
+;;; skype
+#t::
+	ActiveWin("TOM-Skype")
+return
