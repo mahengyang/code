@@ -1,9 +1,6 @@
 ;;; Fn for acer
-/*
-sc178 up::
-    MsgBox % "push Fn"
-	return
-*/
+; sc178::MsgBox "push Fn"
+
 ;;; 大写键浪费了，映射为ctrl
 Capslock::Ctrl
 
@@ -34,40 +31,46 @@ ActiveWin(title_name){
 	SetTitleMatchMode 2
 	If WinExist(title_name){
 	    WinActivate
+	    WinWaitActive
 	}
 }
 
+;;; 使用APPSKEY键做为prefix key，为了不影响键原来的定义，必需先设置原键
+; APPSKEY::Send, {APPSKEY}
+
 ;;; xshell
-#x::
+APPSKEY & x::
 	ActiveWin("Xshell")
 return
 
 ;;; git for zapya_cloud
-#z::
+APPSKEY & z::
 	ActiveWin("posh~git ~ zapya_cloud")
 return
 
 ;;; play debug
-#y::
-	ActiveWin("play debug")
+APPSKEY & p::
+	ActiveWin("debug")
 return
 
 ;;; eclipse
-#e::
+APPSKEY & e::
 	ActiveWin("Eclipse")
 return
 
 ;;; sublime
-#u::
+APPSKEY & s::
 	ActiveWin("Sublime")
 return
 
 ;;; git extentions
-#i::
-	ActiveWin("Git Extentions")
+APPSKEY & g::
+	ActiveWin("Git Extensions")
+	Sleep, 1000
+	Send, {Enter}
 return
 
 ;;; skype
-#t::
+APPSKEY & k::
 	ActiveWin("TOM-Skype")
 return
