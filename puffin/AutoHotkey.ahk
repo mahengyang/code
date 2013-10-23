@@ -1,4 +1,4 @@
-;;; Fn for acer
+﻿;;; Fn for acer
 ; sc178::MsgBox "push Fn"
 
 ;;; 大写键浪费了，映射为ctrl
@@ -56,6 +56,7 @@ return
 ;;; eclipse
 APPSKEY & e::
 	ActiveWin("Eclipse")
+	ActiveWin("Java - ")
 return
 
 ;;; sublime
