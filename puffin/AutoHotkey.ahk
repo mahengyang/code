@@ -15,8 +15,8 @@ f2::
 	If WinActive("Xshell") {
 	    Send, +{insert}
 	; dos窗口的粘贴键是鼠标右键
-	}else if WinActive("posh") or WinActive("cmd.exe") {
-		Send, RButton
+	}else if WinActive("posh") or WinActive("cmd.exe") or WinActive("Bash") {
+		Send, {RButton}
 	; 其它程序都映射为Ctrl + v
 	}else{
 		Send, ^v

@@ -1,0 +1,68 @@
+C++ 面试题
+每问后面括号中的数字是难易度，1最易，5最难
+
+
+1. 问：请比较C和C++。(3)
+   参考答案，仅供参考：
+C++ is a general purpose programming language based on the C programming language as described in ISO/IEC 9899:1990 Programming languages – C. In addition to the facilities provided by C, C++ provides additional data types, classes, templates, exceptions, namespaces, inline functions, operator overloading, function name overloading, references, free store management operators, and additional library facilities.
+
+
+2. 问：请写一个简单的string类定义，只需要给出数据成员和构造函数的声明。不需要实现。(3)
+面试者：balabala ...   -> 应该有一个类似 char* data 的私有数据成员
+问：请实现默认构造函数。(3)
+面试者：balabala ...   -> 应该有为 data 分配空间
+问：如果向string中插入字符，data 所指向的空间用尽了怎么办？(3)
+面试者：balabala ...   -> 应该动态扩展空间
+问：请为string类写扩展空间的函数，或口述该函数的实现要点。(3)
+面试者：balabala ...   -> 应该说到分配新空间、复制原有数据、释放旧空间
+问：向string中插入字符，若不需要扩展空间，操作是廉价的，若需要扩展空间，操作是昂贵的。那么插入一个字符的复杂度是多少？为什么？(5)
+面试者：balabala ...   -> Θ(1)
+
+
+3. 问：了解C++的STL吗？(1)
+面试者：（了解的话继续）
+问：请解释一下容器、算法、迭代器的关系。(4)
+面试者：balabala ...   -> 大致意思应该有容器、算法独立设计，通过迭代器结合；算法通过迭代器操作数据，容器可以返回迭代器。
+问：评价一下这个设计思想。(4)
+面试者：balabala ...   -> 
+
+
+4. 问：STL中的basic_string声明成这个样子：
+		template<class charT,
+		         class traits = char_traits<charT>,
+		         class Allocator = allocator<charT> >
+		class basic_string;
+    能否解释一下traits和Allocator这两个模板参数？(5)
+面试者：balabala ...   -> 大致意思：分别提供了字符比较之类操作和内存分配之类操作，basic_string使用他们提供的功能。
+问：请评价一下这个设计。(3)
+面试者：balabala ...   -> 就听他吹吧，听吹得是否有道理
+
+
+5. 问：解释一下C++中的虚函数。(1)
+面试者：balabala ...   -> 使用指针和引用调用虚函数才会动态绑定，如果没有说到这点要追问
+问：编译器会怎么实现虚函数的动态绑定呢？(3)
+面试者：balabala ...   -> 一般会回答虚函数表、虚函数指针
+问：这虽然是事实上的工业界通用做法，但其实不是标准定义的实现方法。那你能否设计一个别的实现？(5)
+面试者：balabala ...   -> 开放问题，无已知解
+
+
+6. 问：namespace作用。(3)
+面试者：balabala ...
+
+
+7. 问：是否了解标准库中的auto_ptr？(4)
+面试者：balabala ...   -> yes继续，no则大致为其介绍一下
+问：这个类体现了C++中的一个很重要的思想，或者说惯用法，能说一说吗？(4)
+面试者：balabala ...   -> 大致意思：将资源用类管理，构造对象时申请资源，销毁对象时释放资源，特别是在处理异常时能很好的避免泄漏。
+
+
+8. 问：（接着上面的auto_ptr）若有函数f和g声明如下：
+        void f(auto_ptr<int>,  int);
+        int g();
+    下面的调用有什么问题？(5)
+		f(auto_ptr<int>(new int), g());
+面试者：balabala ...   -> 求值顺序不定可能有泄漏问题
+问：如果说不出什么，先换个简单的常识：i = v[i++]; 有什么问题，然后再回到上面的问题。(4)
+面试者：balabala ...
+问：问些side effect，unspecified behavior等。(4)
+面试者：balabala ...
