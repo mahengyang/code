@@ -1,9 +1,55 @@
 java面试题
 
-1、java中HashSet与HashMap有什么区别？（难度：3颗星）
+1、java中HashSet与HashMap有什么相同点？（难度：* *）
+HashSet底层使用的HashMap，key为其存储的对象引用，value为一个final的new Object()，
+两者的使用方式如下：
+HashSet set = new HashSet();
+set.add("asdf");
 
-2、解释DI（依赖注入）；它相比静态工厂模式有什么优势？（难度：4颗星）
+HashMap map = new HashMap();
+map.put("asdf","asdf");
+但在使用的时候感觉不到HashSet有value，也就看不出来有什么相同点。
 
-3、使用数据库会有打开关闭（try..catch..finally..），用一种可扩展的方式把打开的关闭之间的业务逻辑扩展出来。（难度：4颗星）
+2、解释DI（依赖注入）；它相比静态工厂模式有什么优势？（难度：* * *）
+答：
+由容器（如spring）把建立好的对象注入给要使用的对象，省去了每次new对象的开销（spring管理的类默认是单例）；
+静态工厂结合单例也可以达到此效果，但对于接口有多个实现类的情况下，使用DI会较麻烦。
 
-4、
+3、使用数据库会有打开关闭（try..catch..finally..），用一种可扩展的方式把try..catch之间的业务逻辑留给给客户端。（难度：* * *）
+答：
+一般常用模板模式
+// 模板，负责建立连接、关闭连接
+abstract Class Connector<T>{
+    protected abstract do(Connect conn);
+    public T execute(){
+        try{
+            Connect conn = new Connect("localhost",3306);
+            this.do(conn);
+        }catch(ConnectException e){
+            // TO_DO
+        }finally{
+            conn.close();
+        }
+    }
+}
+
+// 具体的处理逻辑
+Class Handler1 extends Connector{
+	protected Result do(Connect conn){
+		return conn.query("select * from test");
+	}
+}
+
+// 客户端使用方式
+Class Client{
+	Connector<Result> handler = new Handler1();
+	Result result = handler.execute();
+}
+
+不限于此方法，如果面试者的回答中有其它的一些模式（如观察者模式在有时也可以达到此效果），也可以酌情考虑，但要有自己的见解。
+
+4、从一列数中随机取出N个不重复的数？（难度：* * *）
+答：（仅供参考）将这列数乱序，然后取前N个即可。
+乱序方法（例举两种）：
+1、先随机出已知数组的下标值，然后取出这个数放到另一个数组中，再从已知数组中删除这个数
+2、每次从已知数组随机一个数，然后将数组的最后一个值赋值给前面随机到的数的位置上，数组长度减1，再从新数组中随机。运算次数就是数组长度

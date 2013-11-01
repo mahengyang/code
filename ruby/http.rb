@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 require 'net/http'
 require 'base64'
 require 'json'
@@ -7,9 +7,9 @@ req_headers = {
 	'Authorization' => '2f43cea8c486e24df9f712e016356b3d',
 	'Content-Type' => 'application/json',
 	# new header
-	'X-DevId' => 'test',
+	'X-SID' => 'aaa',
 }
-req_body = '{"i":"test",
+req_body = '{"i":"aaa",
 			 "cl":[{"cat":3,
 			 		"pkg":"com.dewmobile.zapya",
 			 		"n":"快拿",
