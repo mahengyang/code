@@ -7,7 +7,7 @@ req_headers = {
 	'Authorization' => '2f43cea8c486e24df9f712e016356b3d',
 	'Content-Type' => 'application/json',
 	# new header
-	'X-SID' => 'aaa',
+	"X-DevId" => '111',
 }
 req_body = '{"i":"aaa",
 			 "cl":[{"cat":3,
