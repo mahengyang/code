@@ -7,10 +7,8 @@ require 'rjb'
 
 class SendXmppMessage
 
-  def initialize(mysql)
+  def initialize
     @http = Net::HTTP.new("LDKJSERVER0004" , 80)
-    @redis = Redis.new(:host => "LDKJSERVER0005", :port => 6379)
-    @mysql = mysql
     Rjb::load(classpath = '/home/deployer/DmCodec.jar', jvmargs=[])
     @dmCodec = Rjb::import('com.zapya.DmCodec').new
   end
@@ -44,14 +42,14 @@ class SendXmppMessage
             "o":"8426475",
             "oz":"10556054",
             "th":["1284"],
-            "t":"开迅视频",
+            "t":"",
             "nd":false,
             "pz":"10556054",
             "p":"8426475",
             "pt":1,
             "st":0
           },
-          "from":"愿望",
+          "from":"",
           "s":1,
           "z":"10000035"
           }'
@@ -68,18 +66,12 @@ class SendXmppMessage
       "X-UserTag" => "999901999999"
     }
 
-    result = @mysql.query("select display_name,auth_token from users where _id=#{sender}")
-    return if result == nil
-    sender_info = {}
-    result.each{ |row|
-      sender_info = row
-    }
-    @redis.hset("login:",sender_info["auth_token"], sender)
-    req_headers['cookie'] = "authToken=#{sender_info['auth_token']}; Path=/"
+    req_headers['cookie'] = "authToken=#{sender['auth_token']}; Path=/"
 
     message['to']['+'] = receiver
-    text["n"] = @dmCodec.decodeB62(sender_info['display_name'])
-    text['z'] = sender
+    text["n"] = @dmCodec.decodeB62(sender['display_name'])
+    text['from'] = text['n']
+    text['z'] = sender['id']
 
     text["text"]["oz"] = receiver
     text["text"]["pz"] = receiver

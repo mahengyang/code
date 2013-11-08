@@ -1,10 +1,12 @@
 #!/usr/local/bin/ruby
 require "mongo"
 require "mysql2"
+require "redis"
 load "SendXmppMessage.rb"
 
 class Glory
 	def initialize()
+		puts "initializing..."
 		@db = Mongo::Connection.new("LDKJSERVER0005", 44001).db("zapya_api")
 		@mysql = Mysql2::Client.new(
 			:host => "LDKJSERVER0007", 
@@ -12,16 +14,26 @@ class Glory
 			:password=>"dewmobile",
 			:database=>"fastooth")
 		@currentTime = Time.now.to_i * 1000
-		@sendXmppMessage = SendXmppMessage.new @mysql
-		@zombies = Array.new
+		@sendXmppMessage = SendXmppMessage.new
+		@redis = Redis.new(:host => "LDKJSERVER0005", :port => 6379)
+		@zombies = []
 		File.open('/home/deployer/zombies.txt','r').each{ |row|
-			@zombies.push row.chomp
+			id = row.chomp
+
+			result = @mysql.query("select display_name,auth_token from users where _id=#{id}")
+			next if result == nil
+			sender_info = {}
+	    	result.each{ |row|
+	    	  sender_info = row
+	    	}
+			@redis.hset("login:",sender_info["auth_token"], id)
+			sender_info['id'] = id
+			@zombies.push sender_info
 		}
 		@ROBOT_ST = 4
 	end
 
 	def getTarget()
-		[10556096]
 		query = [
 			{"$match"=> 
 				{"st"=>
@@ -50,7 +62,7 @@ class Glory
 		@zombies.shuffle().slice(0,zombiesNumber)
 	end
 
-	def addGlory(zapyaId,file)
+	def addGlory(zapyaId)
 		zapyaId.chomp!
 		# 为类型为app的共享随机增加被拿数
 		query = {
@@ -66,14 +78,16 @@ class Glory
 				],
 			}
 		add_glory_corsur = 0
+		sharings = []
 		@db["sharings"].find(query).each { |sharing|
-			add_glory_corsur = add_glory_corsur + 1
-			break if add_glory_corsur > 2
+			sharings.push sharing
+		}
+		# fetch sharings 1-3
+		sharings.shuffle().slice(0,rand(1..3)).each { |sharing|
 			sharingId = sharing["_id"]
 			zombies = getZombie()
 			line = "#{zapyaId} #{sharingId} #{zombies.join(",")}"
 			puts line
-			file.puts line
 			
 			#添加僵尸
 			zombies.each{ |zombie|
@@ -82,7 +96,7 @@ class Glory
 			 			"c@"=>@currentTime,
 			 			"f"=>zapyaId,
 			 			"st"=>@ROBOT_ST,
-			 			"zapyaId"=>zombie,
+			 			"zapyaId"=>zombie['id'],
 			 			"sid"=>sharingId,
 						"count" => 1})
 			 	rescue => err
@@ -104,8 +118,6 @@ class Glory
 end
 
 glory = Glory.new()
-log = File.open('/tmp/glory.debug','a')
 File.open('/home/deployer/target.test','r').each{|zapyaId|
-	glory.addGlory(zapyaId,log)
+	glory.addGlory(zapyaId)
 }
-log.close
