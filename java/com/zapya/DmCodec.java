@@ -110,7 +110,18 @@ public class DmCodec {
 		}
 		return sb.toString();
 	}
+	public String decodeB62 (String data) {
+		for (int i = 0; i < encodes.length; i++) {
+			decodes[encodes[i]] = (byte) i;
+		}
+		String result = "";
+		try {
+			result = new String(decodeB62(data.toCharArray()),"utf-8");
+		}catch(Exception e){
+		}
 
+		return  result;
+	}
 	public byte[] decodeB62(char[] data) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(data.length);
 		try {
