@@ -23,6 +23,12 @@ f2::
 	}
 	return
 
+;;; Ctrl + < 映射为Ctrl + Shift + Tab，用于切换标签页
+^,::^+Tab
+
+;;; Ctrl + > 映射为Ctrl + Tab，用于切换标签页
+^.::^Tab
+
 ;^n::
 ;	; 设置匹配模式为正则模式  
 ;	SetTitleMatchMode 2
