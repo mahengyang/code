@@ -1,6 +1,11 @@
 ﻿;;; Fn for acer
 ; sc178::MsgBox "push Fn"
 
+;;; hot string
+:c*:my163::mahengyang163@163.com
+:c*:mygmail::hengyangma@gmail.com
+:c*:myblog::http://my.oschina.net/enyo/blog
+
 ;;; 大写键浪费了，映射为ctrl
 Capslock::Ctrl
 
