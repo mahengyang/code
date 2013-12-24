@@ -42,10 +42,6 @@ f2::
 ;	}
 ;	return
 
-;;; 应用程序键（位于右alt和ctrl之间）映射为ctrl + w，关闭标签页
-APPSKEY::Send, ^w
-
-
 ;;; 激活窗口函数
 ActiveWin(title_name){
 	SetTitleMatchMode 2
@@ -55,43 +51,43 @@ ActiveWin(title_name){
 	}
 }
 
-;;; 使用APPSKEY键做为prefix key，为了不影响键原来的定义，必需先设置原键
-; APPSKEY::Send, {APPSKEY}
+;;; 截屏键映射为ctrl + w，关闭标签页
+PrintScreen::Send, ^w
 
 ;;; xshell
-APPSKEY & x::
+PrintScreen & x::
 	ActiveWin("Xshell")
 return
 
 ;;; git for zapya_cloud
-APPSKEY & z::
-	ActiveWin("posh~git ~ zapya_cloud")
+PrintScreen & z::
+	ActiveWin("posh~git")
 return
 
 ;;; play debug
-APPSKEY & p::
+PrintScreen & p::
 	ActiveWin("debug")
 return
 
 ;;; eclipse
-APPSKEY & e::
+PrintScreen & e::
 	ActiveWin("Eclipse")
 	ActiveWin("Java - ")
 return
 
 ;;; sublime
-APPSKEY & s::
+PrintScreen & s::
 	ActiveWin("Sublime")
 return
 
 ;;; git extentions
-APPSKEY & g::
+PrintScreen & g::
 	ActiveWin("Git Extensions")
 	Sleep, 1000
 	Send, {Enter}
 return
 
 ;;; skype
-APPSKEY & k::
+PrintScreen & k::
 	ActiveWin("TOM-Skype")
 return
