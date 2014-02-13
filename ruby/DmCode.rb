@@ -1,4 +1,4 @@
-002D:Glory.rb:0A4A:1:14=527D1658:16=47d21313:#!/usr/local/bin/ruby
+#!/usr/local/bin/ruby
 require "mongo"
 require "mysql2"
 require "redis"
