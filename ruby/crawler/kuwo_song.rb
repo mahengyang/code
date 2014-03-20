@@ -8,12 +8,11 @@ require 'csv'
 require 'mongo'
 
 mongodb = Mongo::Connection.new("localhost", 44001).db("zapya_api")
-kuwo_song_coll = mongodb['kuwo.song']
-kuwo_song_coll.drop()
+kuwo_singer_info = mongodb['kuwo.singerInfo']
+kuwo_singer_info.drop()
 
 
 page_number = 1..1000
-url = 'http://www.kuwo.cn/yy/st/getData'
 CSV.foreach(ARGV[0]) do |row|
   letter,name,singer_url = row
   max_page = 1
@@ -27,7 +26,7 @@ CSV.foreach(ARGV[0]) do |row|
       'contId' => 'artistSong',
       '-' => ''
     }
-    resp = Net::HTTP.post_form(URI.parse(url), params)
+    resp = Net::HTTP.post_form(URI.parse(singer_url), params)
     doc = Nokogiri::HTML(resp.body)
     if n == 1
       page_item = doc.css('div.pt10 a')
