@@ -9,9 +9,9 @@ require 'mongo'
 
 mongodb = Mongo::Connection.new("localhost", 44001).db("zapya_api")
 kuwo_singer_coll = mongodb['kuwo.singer']
-kuwo_singer_coll.drop()
+#kuwo_singer_coll.drop()
 kuwo_tabs_coll = mongodb['kuwo.tabs']
-kuwo_tabs_coll.drop()
+#kuwo_tabs_coll.drop()
 
 user_attribute = {
   '性别' => 'gender',
@@ -40,8 +40,8 @@ CSV.foreach(ARGV[0]) do |row|
   rescue => error
     next
   end
-
   tmp = doc.css('div.mBodFrm4 p.gzBtnCont')
+  next if tmp.nil?
   rank_index = 1
   if tmp.length == 1
     rank_index = 0
