@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
  
 a = %W(A1 A2 A3 A4 A5 A6 A7 A8 A9 T1 A10 A11 A12 A13 T2 A14 A15 A16 A17 A18)
 b = %W(B1 B2 B3 B4 B5 T1 B6 B7 B8 B9 B10 T2 B11 B12 B13 B14 B15)
