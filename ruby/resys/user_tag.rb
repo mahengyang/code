@@ -6,7 +6,7 @@ require 'mongo'
 class User_tag
 
 	def initialize
-		@db = Mongo::Connection.new("localhost", 44001).db("zapya_api")
+		@db = Mongo::Connection.new("192.168.11.8", 44001).db("zapya_api")
 		@source_coll = @db['sharings.app']
 		@tags_coll = @db['qing.keywords']
 	end
@@ -37,5 +37,5 @@ items = user.find_item(id)
 tags = user.find_tags(items)
 puts "user id: #{id}"
 puts "user has: #{items}"
-puts "========================"
-puts "tags:#{tags}"
+puts "========== tags =============="
+puts "#{tags}"
