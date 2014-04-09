@@ -1,7 +1,10 @@
 (ns hello.core
   (:gen-class))
+(import java.lang.Math)
 
-(defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
+(defn hello [user]
+	(println "you are:",(Math/sqrt user)))
+
+(defn -main [& args]
+  (hello 2))
+
