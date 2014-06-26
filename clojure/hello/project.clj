@@ -11,6 +11,7 @@
                  [org.clojure/java.jdbc "0.3.3"]
                  [ring/ring-core "1.3.0"]
                  [ring/ring-jetty-adapter "1.3.0"]]
+  :dev-dependencies [[lein-ring "0.8.11"]]
   :main hello.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
