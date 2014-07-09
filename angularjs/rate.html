@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html ng-app>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link href="bootstrap-3.2.0-dist/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+        /* Space out content a bit */
+        body {
+          padding-top: 20px;
+          padding-bottom: 20px;
+        }
+
+        /* Everything but the jumbotron gets side spacing for mobile first views */
+        .header,
+        .marketing,
+        .footer {
+          padding-right: 15px;
+          padding-left: 15px;
+        }
+
+        /* Custom page header */
+        .header {
+          border-bottom: 1px solid #e5e5e5;
+        }
+        /* Make the masthead heading the same height as the navigation */
+        .header h3 {
+          padding-bottom: 19px;
+          margin-top: 0;
+          margin-bottom: 0;
+          line-height: 40px;
+        }
+
+        /* Custom page footer */
+        .footer {
+          padding-top: 19px;
+          color: #777;
+          border-top: 1px solid #e5e5e5;
+        }
+
+        .form-control {
+            width: 60%;
+        }
+
+        /* Customize container */
+        @media (min-width: 768px) {
+          .container {
+            max-width: 730px;
+          }
+        }
+        .container-narrow > hr {
+          margin: 30px 0;
+        }
+
+        /* Main marketing message and sign up button */
+        .jumbotron {
+          text-align: center;
+          border-bottom: 1px solid #e5e5e5;
+        }
+        .jumbotron .btn {
+          padding: 14px 24px;
+          font-size: 21px;
+        }
+
+        /* Supporting marketing content */
+        .marketing {
+          margin: 40px 0;
+        }
+        .marketing p + h4 {
+          margin-top: 28px;
+        }
+
+        /* Responsive: Portrait tablets and up */
+        @media screen and (min-width: 768px) {
+          /* Remove the padding we set earlier */
+          .header,
+          .marketing,
+          .footer {
+            padding-right: 0;
+            padding-left: 0;
+          }
+          /* Space out the masthead */
+          .header {
+            margin-bottom: 30px;
+          }
+          /* Remove the bottom border on the jumbotron for visual effect */
+          .jumbotron {
+            border-bottom: 0;
+          }
+        }
+    </style>
+    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="bootstrap-3.2.0-dist/js/angular.js"></script>
+    <title>打分表</title>
+</head>
+<body ng-controller='MyController'>
+<div class="jumbotron">
+    <h1>学习分享打分表</h1>
+    <div class="row">
+        <form role="form" class="form-horizontal">
+            <div class="form-group">
+                <label for="lecturer" class="col-lg-4 control-label">演讲者</label>
+                <div class="col-lg-8">
+                    <select name="lecturer" class="form-control"
+                            ng-model="Select1" ng-options="m for m in Model">
+                        <option value="">请选择</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="rater" class="col-lg-4 control-label">评分者</label>
+                <div class="col-lg-8">
+                    <select  name="rater" class="form-control">
+                     <option>1</option>
+                     <option>2</option>
+                     <option>3</option>
+                     <option>4</option>
+                     <option>5</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="score1" class="col-lg-4 control-label">培训内容与主题相符（10分）</label>
+                <div class="col-lg-8">
+                    <input name="score1" type="text" class="form-control" value="6">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="score2" class="col-lg-4 control-label">培训内容的实用性（20分）</label>
+                <div class="col-lg-8">
+                    <input name="score2" type="text" class="form-control" value="12">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="score3" class="col-lg-4 control-label">培训内容的说服力（20分）</label>
+                <div class="col-lg-8">
+                    <input name="score3" type="text" class="form-control" value="12">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="score4" class="col-lg-4 control-label">课前准备是否充分（20分）</label>
+                <div class="col-lg-8">
+                    <input name="score4" type="text" class="form-control" value="12">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="score5" class="col-lg-4 control-label">讲课内容是否丰富、吸引人（20分）</label>
+                <div class="col-lg-8">
+                    <input name="score5" type="text" class="form-control" value="12">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="score6" class="col-lg-4 control-label">表达能力（10分）</label>
+                <div class="col-lg-8">
+                    <input name="score6" type="text" class="form-control" value="6">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="gain" class="col-lg-4 control-label">你在本次培训中最大的收获是什么？</label>
+                <div class="col-lg-8">
+                    <textarea name="gain" type="text" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="improvement" class="col-lg-4 control-label">你认为本次课程、讲师或培训组织等方面最应该改进的地方是？</label>
+                <div class="col-lg-8">
+                    <textarea name="improvement" type="text" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="expect" class="col-lg-4 control-label">针对当前的工作，你希望下次参加哪些培训项目？</label>
+                <div class="col-lg-8">
+                    <textarea name="expect" type="text" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+                <button type="submit" class="btn btn-primary">提交</button>
+        </form>
+    </div>
+</div>
+<script type="text/javascript" src="bootstrap-3.2.0-dist/js/bootstrap.js"></script>
+<script type="text/javascript">
+function MyController($scope) {
+      $scope.Model = [1,2,3];
+}
+</script>
+</body>
+</html>
