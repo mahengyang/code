@@ -88,20 +88,20 @@
           }
         }
     </style>
-    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="jquery-1.11.1.js"></script>
     <script type="text/javascript" src="bootstrap-3.2.0-dist/js/angular.js"></script>
     <title>打分表</title>
 </head>
 <body ng-controller='MyController'>
 <div class="jumbotron">
-    <h1>学习分享打分表</h1>
+    <h2>学习分享打分表</h2>
     <div class="row">
         <form role="form" class="form-horizontal">
             <div class="form-group">
                 <label for="lecturer" class="col-lg-4 control-label">演讲者</label>
                 <div class="col-lg-8">
                     <select name="lecturer" class="form-control"
-                            ng-model="Select1" ng-options="m for m in Model">
+                            ng-model="Select1" ng-options="m for m in Staff">
                         <option value="">请选择</option>
                     </select>
                 </div>
@@ -187,7 +187,7 @@
 <script type="text/javascript" src="bootstrap-3.2.0-dist/js/bootstrap.js"></script>
 <script type="text/javascript">
 function MyController($scope) {
-      $scope.Model = [1,2,3];
+      $scope.Staff = [1,2,3];
 }
 </script>
 </body>
