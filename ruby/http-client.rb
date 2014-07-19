@@ -10,25 +10,22 @@ req_headers = {
 	"X-UserTag" => "999901999999",
 	'X-SID' => 'aaa',
 }
-req_body = '{
-              "lnt": 1,
-              "lat": 1,
-              "u": 1,
-              "n": 1,
-              "m": 3,
-              "limit": 20,
-              "offset": 0,
-              "by": 0,
-              "x": "xx"
-		}'
-req_body = JSON::Parser.new(req_body).parse
-
+req_body = {
+       t: 1,
+       n: "test",
+       cat: 3,
+       snip: "",
+       ch: "2000",
+       bu: "http://www.youku.com",
+}
+# req_body = JSON::Parser.new(req_body).parse
 # http connect to zapya test server
 http = Net::HTTP.new(ARGV[0],ARGV[1])
-# response = http.request_post('/v2/locations/checkin', JSON::generate(req_body), req_headers)
+# response = http.request_post(ARGV[2], JSON::generate(req_body), req_headers)
 response = http.request_get(ARGV[2], req_headers)
-
 puts "\n==============http header==============\n#{req_headers}"
 puts "\n==============http body==============\n#{JSON::generate(req_body)}"
 puts "\n==============response==============\n#{response}"
+puts "\n==============response msg==============\n#{response.msg}"
+puts "\n==============response header==============\n#{response['location']}"
 puts "\n==============response.body==============\n#{response.body}"

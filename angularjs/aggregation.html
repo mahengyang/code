@@ -20,6 +20,7 @@
         /* Custom page header */
         .header {
           border-bottom: 1px solid #e5e5e5;
+          margin-bottom: 30px;
         }
         #master-header {
             margin-top: 0;
@@ -71,37 +72,41 @@
           margin-top: 28px;
         }
     </style>
-    <title>打分表</title>
+    <title>演讲评分汇总</title>
 </head>
 <body ng-controller='MyController'>
 <div class="jumbotron">
-    <h1 class="header" id='master-header'>学习分享打分表</h1>
-
+    <h1 class="header" id='master-header'>演讲评分汇总</h1>
     <div class="row">
         <form role="form" class="form-horizontal">
             <div class="form-group">
-                <label class="col-lg-4 control-label">演讲者</label>
-                <div class="col-lg-2">
-                    <input type="text" ng-model="lecturer" class="form-control" readonly>
-                </div>
-                <label class="col-lg-1 control-label">总分：{{totalScore()}}</label>
-            </div>
-
-            <div class="form-group">
-                <label for="rater" class="col-lg-4 control-label">评分者</label>
+                <label for="rater" class="col-lg-4 control-label">演讲者</label>
                 <div class="col-lg-5">
-                    <select  name="rater" class="form-control" ng-model="rater">
+                    <select name="rater" class="form-control" ng-model="lecturer" ng-change="submit()">
                         <option value="">请选择...</option>
-                        <option ng-repeat="m in staffs">{{m}}</option>
+                        <option ng-repeat="m in lecturers">{{m}}</option>
                     </select>
                 </div>
             </div>
-
+            <!-- unraters -->
+            <div class="form-group">
+                <label for="{{unraters.name}}" class="col-lg-4 control-label">{{unraters.label}}</label>
+                <div class="col-lg-5">
+                    <textarea name="{{unraters.name}}" type="text" class="form-control" ng-model="unraters.value" readonly></textarea>
+                </div>
+            </div>
+            <!-- raters -->
+            <div class="form-group">
+                <label for="{{raters.name}}" class="col-lg-4 control-label">{{raters.label}}</label>
+                <div class="col-lg-5">
+                    <textarea name="{{raters.name}}" type="text" class="form-control" ng-model="raters.value" readonly></textarea>
+                </div>
+            </div>
             <!-- rates -->
             <div class="form-group" ng-repeat="score in scores">
-                <label for="{{score.name}}" class="col-lg-4 control-label">{{score.label}}</label>
+                <label for="{{score.value}}" class="col-lg-4 control-label">{{score.label}}</label>
                 <div class="col-lg-5">
-                    <input name="{{score.name}}" type="number" class="form-control" ng-model="score.value">
+                    <input name="{{score.name}}" type="text" class="form-control" ng-model="score.value" readonly>
                 </div>
             </div>
 
@@ -109,10 +114,9 @@
             <div class="form-group" ng-repeat="comment in comments">
                 <label for="{{comment.name}}" class="col-lg-4 control-label">{{comment.label}}</label>
                 <div class="col-lg-5">
-                    <textarea name="{{comment.name}}" type="text" class="form-control" rows="3" ng-model="comment.value"></textarea>
+                    <textarea name="{{comment.name}}" type="text" class="form-control" rows="13" ng-model="comment.value"></textarea>
                 </div>
             </div>
-            <button class="btn btn-primary" ng-click="submit()">提交</button>
         </form>
     </div>
     <h2>{{result}}</h2>
@@ -122,7 +126,10 @@
 <script type="text/javascript" src="bootstrap-3.2.0-dist/js/bootstrap.js"></script>
 <script type="text/javascript">
     function MyController($scope,$http) {
+        $scope.unraters = {name:"unraters",value:"", label:"未评分的人"}
+        $scope.raters = {name:"raters",value:"", label:"已评分的人"}
         $scope.scores = [
+            {name:"totalScore", value:60, label:"总分（100分）"},
             {name: "score1", value:6, label: "培训内容与主题相符（10分）"},
             {name: "score2", value: 12, label: "培训内容的实用性（20分）"},
             {name: "score3", value: 12, label: "培训内容的说服力（20分）"},
@@ -131,47 +138,45 @@
             {name: "score6", value: 6, label: "表达能力（10分）"}
         ];
         $scope.comments = [
-            {name:"gain", label:"你在本次培训中最大的收获是什么？",  value:""},
+            {name:"gain", label:"你在本次培训中最大的收获是什么？",value:""},
             {name:"improvement", label:"你认为本次课程、讲师或培训组织等方面最应该改进的地方是？",value:""},
             {name:"expect", label:"针对当前的工作，你希望下次参加哪些培训项目？",value:""}
         ];
 
-        $scope.totalScore = function(){
-            var result = 0;
-            for(var i = 0, len = $scope.scores.length; i < len; i++){
-                result += parseInt($scope.scores[i].value);
-            }
-            return result;
-        }
-
         $scope.submit = function(){
             mydata = {}
-            for(var i = 0, len = $scope.scores.length; i < len; i++){
-                mydata[$scope.scores[i].name] = $scope.scores[i].value;
-            }
-
-            for(var i = 0, len = $scope.comments.length; i < len; i++){
-                mydata[$scope.comments[i].name] = $scope.comments[i].value
-            }
             mydata.lecturer = $scope.lecturer;
-            mydata.rater = $scope.rater;
-            mydata.action = "submit";
-            console.log(mydata);
+            mydata.action = "agg";
             $http.get('/cgi-bin/lecture.rb',{params:mydata}).success(
                     function (data,status,headers,config){
-                        $scope.result = data.result;
+                        // 初始化每一项的平均分
+                        for (var i = $scope.scores.length - 1; i >= 0; i--) {
+                            name = $scope.scores[i].name;
+                            $scope.scores[i].value = data[name];
+                        };
+                        // 初始化评论
+                        for (var i = $scope.comments.length - 1; i >= 0; i--) {
+                            name = $scope.comments[i].name;
+                            comment = "";
+                            for (var j = data[name].length - 1; j >= 0; j--) {
+                                comment = comment +"\r\n"+ data[name][j];
+                            };
+                            $scope.comments[i].value = comment;
+                        };
+
+                        $scope.unraters.value = data['unraters']
+                        $scope.raters.value = data['raters']
+
                     }).error(
                     function (data,status,headers,config){
                         console.log(status);
                     });
         }
 
-        $http.get('/cgi-bin/lecture.rb?action=staffs')
+        $http.get('/cgi-bin/lecture.rb?action=lecturers')
         .success(
             function (data,status,headers,config){
-                console.log(data);
-                $scope.staffs = data.staffs;
-                $scope.lecturer = data.lecturer;
+                $scope.lecturers = data.lecturers;
         }).error(
             function (data,status,headers,config){
                 console.log(status);
