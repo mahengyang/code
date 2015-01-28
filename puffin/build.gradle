@@ -1,0 +1,373 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.hidetake:gradle-ssh-plugin:1.0.1'
+        classpath 'org.akhikhl.gretty:gretty:+'
+    }
+}
+
+allprojects {
+	apply plugin: "java"
+    apply plugin: "idea"
+	apply plugin: "eclipse"
+	apply plugin: "maven"
+	apply plugin: 'org.hidetake.ssh'
+
+	group = "com.message"
+	version = "1.0"
+
+	// 全局属性设置
+	ext {
+		junitVersion = "4.11"
+		springVersion = "4.0.2.RELEASE"
+		securityVersion = "3.2.3.RELEASE"
+
+		// java文件编码方式设置为utf-8
+		compileJava.options.encoding = 'UTF-8'
+		compileTestJava.options.encoding = 'UTF-8'
+		sourceCompatibility = 1.6
+
+		svnUrl = 'http://192.168.7.237/ngsvnroot/message/branches/message_0115_optimize_message'
+		// 远程服务器配置
+		svnCodeDir = '/Data/code_from_svn'
+		maven = '/usr/local/maven/bin/mvn'
+		baseTomcat = '/opt/qb_server/tomcat_message_test_'
+		baseDeploy = '/Data/WEB_APP/message_test_'
+		deployRoot = "ROOT"
+	    deployRootConf = "ROOT_conf"
+		replaceConfFile = ['cas.properties','domain.properties']
+		javaPath = '/opt/java/jdk1.6.0_43'
+		javaOpts = [
+					"-server -d64 -Djava.awt.headless=true",
+				    "-Xms2G -Xmx2G -Xmn700m -XX:PermSize=128m -XX:MaxPermSize=512m",
+				    "-XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection",
+				    "-XX:CMSMaxAbortablePrecleanTime=5000 -XX:CMSInitiatingOccupancyFraction=80",
+				    "-XX:+DisableExplicitGC -XX:+CMSClassUnloadingEnabled",
+				    "-XX:+PrintGCDetails -XX:+PrintGCTimeStamps",
+				    "-Djava.net.preferIPv4Stack=true", 
+				    "-Dorg.apache.catalina.session.StandardSession.ACTIVITY_CHECK=true",
+			    	]
+		// 域名替换
+		replaceUrl = [
+						'hyip:8080' : 'www.qianbao666.com',
+						'cas:5050' : 'passport.qianbao666.com/cas',
+						'cas:5443' : 'passport.qianbao666.com/cas',
+						'user:7070' : 'user.qianbao666.com',
+						'user:7090' : 'user.qianbao666.com',
+						'auc:9040' : 'leipai.qianbao666.com',
+						'message:7085' : 'message.qianbao66.com',
+						'message:7080' : 'message.ba.qianbao66.com',
+						'usercenter:5060' : 'www.qianwang365.com/uc',
+						'help:8080' : 'help.qianbao666.com',
+						'bc:8080' : 'bc.qianbao666.com',
+						'qhb:8080' : 'qhb.qianbao666.com',
+						'car:8888' : 'car.qianbao666.com',
+						'app:8080' : 'www.qianwang365.com',
+					]
+	}
+
+	// 远程服务器地址
+	remotes {
+	  server {
+	    host = '192.168.7.153'
+	    user = 'root'
+	    password = 'qwdfer433bvas85'
+	  }
+	}
+
+}
+
+def isDeploy(){
+	def deploy = false
+	project.gradle.startParameter.taskNames.each{ command ->
+		if(command.contains('deploy')){
+			deploy = true
+		}
+	}
+	return deploy
+}
+
+// 所有子工程共有的配置
+subprojects {
+	repositories {
+	    mavenLocal()
+	    mavenCentral()
+	    maven { url "http://192.168.7.246:8081/nexus/content/repositories/thirdparty" }
+	    maven { url "http://mirrors.ibiblio.org/pub/mirrors/maven2" }
+	    maven { url "http://repo.springsource.org/libs-snapshot" }
+	    maven { url "http://repository.sonatype.org/content/groups/public" }
+	    maven { url "http://maven.jahia.org/maven2" }
+	    maven { url "http://repository.jboss.com/maven2" }
+	    maven { url "http://spring-json.sourceforge.net/repository" }
+	    maven { url "https://repository.jboss.org/nexus/content/repositories/deprecated" }
+	}
+
+	dependencies {
+	    compile(
+	    	"apache-oro:jakarta-oro:2.0.8",
+			"org.codehaus.jackson:jackson-core-asl:1.9.13",
+			"org.codehaus.jackson:jackson-mapper-asl:1.9.13",
+            "org.springframework:spring-test:${springVersion}",
+			"com.qianwang.pay:pay-client:1.0.4",
+			"com.qianwang.pay:pay-common:1.0.4",
+			"log4j:log4j:1.2.14",
+			"dom4j:dom4j:1.6.1",
+			"commons-codec:commons-codec:1.6",
+			"org.slf4j:slf4j-api:1.7.5",
+			"joda-time:joda-time:2.3",
+			"commons-lang:commons-lang:2.4",
+			"org.springframework:spring-framework-bom:${springVersion}",
+			"org.springframework.security:spring-security-core:${securityVersion}",
+			"org.springframework.security:spring-security-web:${securityVersion}",
+			"org.springframework.security:spring-security-config:${securityVersion}",
+			"org.springframework.security:spring-security-taglibs:${securityVersion}",
+			"org.springframework.security:spring-security-cas-client:3.0.8.RELEASE",
+			"org.jasig.cas.client:cas-client-core:3.1.11",
+			"redis.clients:jedis:2.4.2",
+			"javax.servlet.jsp:jsp-api:2.1",
+			"javax.servlet:jstl:1.2",
+			"javax.servlet:servlet-api:2.5"
+	    )
+
+	    testCompile(
+	    	"junit:junit:${junitVersion}"
+	    )
+	}
+
+	task stopTomcat << {
+		description '关闭远程服务器上的tomcat'
+		def tomcatDir = baseTomcat + project.name
+		ssh.run {
+		    session(remotes.server) {
+				println "关闭$tomcatDir"
+			    def pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
+			    if(pid == ''){
+			    	println "$tomcatDir 没有运行"
+			    	return
+			    }
+			    execute "$tomcatDir/bin/shutdown.sh"
+			    pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
+			    if(pid != ''){
+			    	if(pid.split('\n').size() > 1){
+			    		prinln "根据 $tomcatDir 查询到的进程不只一个，无法确定要关闭哪一个"
+			    		return
+			    	}
+			    	println "$tomcatDir 没有正常关闭，强制结束"
+			    	execute "kill -9 $pid"
+			    }
+			    println "$tomcatDir 已经关闭"
+			}
+		}
+	}
+
+	task startTomcat << {
+		description '启动远程服务器上的tomcat'
+		def tomcatDir = baseTomcat + project.name
+		def deployDir = baseDeploy + project.name
+		ssh.run {
+	    	session(remotes.server) {
+	    		def pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
+			    if(pid != ''){
+			    	println "$tomcatDir 正在运行，pid=$pid 请关闭后再启动"
+			    	return
+			    }
+				def tomcatLog = "$tomcatDir/logs/catalina.out"
+				execute "echo > $tomcatLog"
+			    println "启动$tomcatDir"
+			    def startCommand = [
+			    					"export CATALINA_HOME=$tomcatDir",
+			    					"export JAVA_HOME=$javaPath",
+			    					"export JRE_HOME=$javaPath",
+			    					"export PATH=\$PATH:$javaPath/bin",
+			    					"export LD_LIBRARY_PATH=/usr/local/lib",
+			    					"export CONF_DIR=$deployDir/$deployRootConf",
+			    					"export CLASSPATH=$javaPath/lib:\$CONF_DIR",
+			    					"export JAVA_OPTS='${javaOpts.join(' ')}'",
+			    					"$tomcatDir/bin/startup.sh"
+			    					]
+			    println(execute("${startCommand.join(' && ')}"))
+			    pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
+			    if(pid != ''){
+			    	println "$tomcatDir 启动成功"
+			    }
+			}
+		}
+	}
+
+	task deployCode << {
+		description = '更新svn，编译打包，修改配置文件'
+		def deployDir = baseDeploy + project.name
+		def tomcatDir = baseTomcat + project.name
+		ssh.run {
+			session(remotes.server) {
+				def branchName = svnUrl.split('/')[-1]
+				if(branchName == 'trunk'){
+					branchName = "message_$branchName"
+				}
+				def branchDir = "$svnCodeDir/$branchName"
+				def warPath = "$branchDir/app/target/app.war"
+				def deployRootDir = "$deployDir/$deployRoot"
+				def deployRootConfDir = "$deployDir/$deployRootConf"
+				def exists = execute "[ -d $branchDir ] && echo yes || echo no"
+				if(exists == 'yes'){
+					println "svn update,服务器上已经存在此分支"
+					execute "svn up $branchDir"
+				}else{
+					println "svn checkout,服务器上不存在此分支"
+					execute "svn co $svnUrl $branchDir"
+				}
+				println "svn代码准备完完毕，下面开始编译"
+				execute "cd $branchDir && $maven clean install -Dmaven.test.skip=true"
+
+				exists = execute "[ -f $warPath ] && echo yes || echo no"
+				if(exists == 'no'){
+					println "不存在$warPath 编译失败"
+					return
+				}
+				println "准备app工程发布目录"
+				execute "[ -d $deployRootDir ] || mkdir -p $deployRootDir"
+				execute "[ -d $deployRootConfDir ] || mkdir -p $deployRootConfDir"
+				execute "rm -rf $deployRootDir/*"
+				execute "rm -rf $deployRootConfDir/*"
+				println "解压 $warPath 到发布目录 $deployRootDir"
+				execute "unzip -oq $warPath -d $deployRootDir"
+				println "准备配置文件，域名替换"
+				execute "cp $branchDir/common/src/main/resources/*.properties $deployRootConfDir"
+				replaceConfFile.each { confFile ->
+					replaceUrl.each{ key,value ->
+						execute "sed -i 's@$key@'$value'@g' $deployRootConfDir/$confFile"
+					}
+				}
+				println "去除ip限制"
+				execute "sed -i 's/^uc_api_pass_ips=.*\$/uc_api_pass_ips=/' $deployRootConfDir/myconfig.properties"
+			}
+		}
+	}
+
+	task deploy << {
+		description '不执行任何实际的布署工作，通过dependsOn启动其它任务'
+		println "布署完成"
+	}
+
+	stopTomcat.dependsOn deployCode
+	startTomcat.dependsOn stopTomcat
+	deploy.dependsOn startTomcat
+	// 只有deploy的时候才执行（gradle任务依赖不完善）
+	deployCode.onlyIf{ return isDeploy() }
+}
+
+project(':app'){
+	apply plugin: 'war'
+	apply plugin: 'org.akhikhl.gretty'
+
+	gretty {
+		httpPort = 7085
+		servicePort = 7087
+		statusPort = 7088
+		contextPath = '/'
+		jvmArgs = ['-Xmx1024M', '-XX:PermSize=128M', '-XX:MaxPermSize=256M', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7086']
+		servletContainer = 'jetty7'
+		// 直接使用webapp目录做为web容器的运行目录
+		inplaceMode = 'hard'
+	}
+
+	dependencies {
+		compile(
+			// 依赖common工程
+			project(":common"),
+			"commons-codec:commons-codec:1.6",
+			"commons-fileupload:commons-fileupload:1.2.2",
+			"commons-httpclient:commons-httpclient:3.1",
+			"org.springframework:spring-web:${springVersion}",
+			"org.springframework:spring-webmvc:${springVersion}",
+			"org.springframework:spring-beans:${springVersion}",
+			"org.springframework:spring-context:${springVersion}",
+			"cglib:cglib-nodep:2.2",
+			"org.aspectj:aspectjrt:1.6.9",
+			"org.aspectj:aspectjweaver:1.6.9",
+			"dom4j:dom4j:1.6.1",
+			"com.qianwang.s:antifruadserverapi:1.2",
+			"org.apache.tiles:tiles-core:2.2.2",
+			"org.apache.tiles:tiles-servlet:2.2.2",
+			"org.apache.tiles:tiles-jsp:2.2.2"
+		)
+	}
+}
+
+project(':ba'){
+	apply plugin: "war"
+	apply plugin: 'org.akhikhl.gretty'
+
+	gretty {
+		httpPort = 7080
+		servicePort = 7082
+		statusPort = 7083
+		contextPath = '/'
+		jvmArgs = ['-Xmx1024M', '-XX:PermSize=128M', '-XX:MaxPermSize=256M','-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7081']
+		servletContainer = 'jetty7'
+		inplaceMode = 'hard'
+	}
+
+	dependencies {
+		compile(
+			// 依赖common工程
+			project(":common"),
+			"commons-codec:commons-codec:1.6",
+			"commons-fileupload:commons-fileupload:1.2.2",
+			"commons-httpclient:commons-httpclient:3.1",
+			"com.qq.api:sdk4j:1.0",
+			"org.springframework:spring-web:${springVersion}",
+			"org.springframework:spring-webmvc:${springVersion}",
+			"org.springframework:spring-beans:${springVersion}",
+			"org.springframework:spring-context:${springVersion}",
+			"cglib:cglib-nodep:2.2",
+			"org.aspectj:aspectjrt:1.6.9",
+			"org.aspectj:aspectjweaver:1.6.9",
+			"dom4j:dom4j:1.6.1",
+			"com.qianwang.s:antifruadserverapi:1.2",
+			"org.quartz-scheduler:quartz:1.8.4",
+			"org.apache.tiles:tiles-core:2.2.2",
+			"org.apache.tiles:tiles-servlet:2.2.2",
+			"org.apache.tiles:tiles-jsp:2.2.2"
+		)
+	}
+}
+
+project(':common'){
+	dependencies {
+		compile(
+			"jaxen:jaxen:1.1.6",
+			"org.apache.poi:poi:3.0.1-FINAL",
+			"javax.mail:mail:1.4.4",
+			"commons-httpclient:commons-httpclient:3.1",
+			"commons-io:commons-io:2.4",
+			"org.apache.httpcomponents:httpclient:4.3.3",
+			"org.springframework.data:spring-data-mongodb:1.4.1.RELEASE",
+			"net.sf.json-lib:json-lib:2.4",
+			"com.google.code.gson:gson:2.1",
+			"com.alibaba:fastjson:1.1.39",
+			"org.mybatis:mybatis:3.2.5",
+			"ch.qos.logback:logback-classic:1.0.11",
+			"org.jasypt:jasypt:1.9.0",
+			"org.mybatis:mybatis-spring:1.2.2",
+			"mysql:mysql-connector-java:5.1.26",
+			"org.springframework:spring-core:${springVersion}",
+			"javassist:javassist:3.11.0.GA",
+			"org.springframework:spring-beans:${springVersion}",
+			"org.springframework:spring-orm:${springVersion}",
+			"org.springframework:spring-aop:${springVersion}",
+			"org.springframework:spring-jdbc:${springVersion}",
+			"org.springframework:spring-tx:${springVersion}",
+			"org.springframework:spring-web:${springVersion}",
+			"org.springframework:spring-webmvc:${springVersion}",
+			"org.springframework:spring-context:${springVersion}",
+			"org.springframework:spring-context-support:${springVersion}",
+			"commons-dbcp:commons-dbcp:1.2.2",
+			"org.springframework.data:spring-data-redis:1.2.0.RELEASE",
+			"com.qiniu:sdk:6.1.7",
+			"commons-fileupload:commons-fileupload:1.2.2",
+		)
+	}
+}
