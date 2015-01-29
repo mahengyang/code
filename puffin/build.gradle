@@ -33,8 +33,8 @@ allprojects {
 		// 远程服务器配置
 		svnCodeDir = '/Data/code_from_svn'
 		maven = '/usr/local/maven/bin/mvn'
-		baseTomcat = '/opt/qb_server/tomcat_message_test_'
-		baseDeploy = '/Data/WEB_APP/message_test_'
+		baseTomcat = '/opt/qb_server/tomcat_${project.group.split('\\.')[-1]}_test_'
+		baseDeploy = '/Data/WEB_APP/${project.group.split('\\.')[-1]}_test_'
 		deployRoot = "ROOT"
 	    deployRootConf = "ROOT_conf"
 		replaceConfFile = ['cas.properties','domain.properties']
@@ -136,28 +136,51 @@ subprojects {
 	    )
 	}
 
+	task getSvnUrl << {
+		description '调用svn info命令获取svn url'
+		if(!project.hasProperty('svnUrl')){
+			def myos = System.properties['os.name'].toLowerCase()
+			def svnInfoCommand = ''
+			if (myos.contains('windows')) {
+			    println "你使用的是windows"
+				svnInfoCommand = "cmd /c svn info"
+			} else if(myos.contains('mac')) {
+			    println "你使用的是Mac"
+			    svnInfoCommand = "sh svn info"
+			} else if(myos.contains('nux') || myos.contains('nix')) {
+				println "你使用的是linux"
+				svnInfoCommand = "sh svn info"
+			}
+
+			def svnInfo = svnInfoCommand.execute().text
+			def svnUrlLine = svnInfo.split('\n')[2]
+			def svnUrl = svnUrlLine.split(': ')[1]
+			project.ext.set('svnUrl',svnUrl.trim())
+		}
+	}
+
 	task stopTomcat << {
 		description '关闭远程服务器上的tomcat'
 		def tomcatDir = baseTomcat + project.name
 		ssh.run {
-		    session(remotes.server) {
+			session(remotes.server) {
 				println "关闭$tomcatDir"
-			    def pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
-			    if(pid == ''){
-			    	println "$tomcatDir 没有运行"
-			    	return
-			    }
-			    execute "$tomcatDir/bin/shutdown.sh"
-			    pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
-			    if(pid != ''){
-			    	if(pid.split('\n').size() > 1){
-			    		prinln "根据 $tomcatDir 查询到的进程不只一个，无法确定要关闭哪一个"
-			    		return
-			    	}
-			    	println "$tomcatDir 没有正常关闭，强制结束"
-			    	execute "kill -9 $pid"
-			    }
-			    println "$tomcatDir 已经关闭"
+				def pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
+				if(pid == ''){
+					println "$tomcatDir 没有运行"
+					return
+				}
+				execute "$tomcatDir/bin/shutdown.sh"
+				pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
+				if(pid != ''){
+					if(pid.split('\n').size() > 1){
+						prinln "根据 $tomcatDir 查询到的进程不只一个，无法确定要关闭哪一个"
+						return
+					}
+					println "$tomcatDir 没有正常关闭，强制结束"
+					execute "kill -9 $pid"
+				}
+				println "$tomcatDir 已经关闭"
 			}
 		}
 	}
@@ -167,37 +190,42 @@ subprojects {
 		def tomcatDir = baseTomcat + project.name
 		def deployDir = baseDeploy + project.name
 		ssh.run {
-	    	session(remotes.server) {
-	    		def pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
-			    if(pid != ''){
-			    	println "$tomcatDir 正在运行，pid=$pid 请关闭后再启动"
-			    	return
-			    }
+			session(remotes.server) {
+				def pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
+				if(pid != ''){
+					println "$tomcatDir 正在运行，pid=$pid 请关闭后再启动"
+					return
+				}
 				def tomcatLog = "$tomcatDir/logs/catalina.out"
 				execute "echo > $tomcatLog"
-			    println "启动$tomcatDir"
-			    def startCommand = [
-			    					"export CATALINA_HOME=$tomcatDir",
-			    					"export JAVA_HOME=$javaPath",
-			    					"export JRE_HOME=$javaPath",
-			    					"export PATH=\$PATH:$javaPath/bin",
-			    					"export LD_LIBRARY_PATH=/usr/local/lib",
-			    					"export CONF_DIR=$deployDir/$deployRootConf",
-			    					"export CLASSPATH=$javaPath/lib:\$CONF_DIR",
-			    					"export JAVA_OPTS='${javaOpts.join(' ')}'",
-			    					"$tomcatDir/bin/startup.sh"
-			    					]
-			    println(execute("${startCommand.join(' && ')}"))
-			    pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
-			    if(pid != ''){
-			    	println "$tomcatDir 启动成功"
-			    }
+				println "启动$tomcatDir"
+				def startCommand = [
+						"export CATALINA_HOME=$tomcatDir",
+						"export JAVA_HOME=$javaPath",
+						"export JRE_HOME=$javaPath",
+						"export PATH=\$PATH:$javaPath/bin",
+						"export LD_LIBRARY_PATH=/usr/local/lib",
+						"export CONF_DIR=$deployDir/$deployRootConf",
+						"export CLASSPATH=$javaPath/lib:\$CONF_DIR",
+						"export JAVA_OPTS='${javaOpts.join(' ')}'",
+						"$tomcatDir/bin/startup.sh"
+				]
+				println(execute("${startCommand.join(' && ')}"))
+				pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
+				if(pid != ''){
+					println "$tomcatDir 启动成功"
+				}
 			}
 		}
 	}
 
 	task deployCode << {
-		description = '更新svn，编译打包，修改配置文件'
+		description '更新svn，编译打包，修改配置文件'
+
+		if(!project.hasProperty('svnUrl')){
+			println "svn url获取失败，请用'gradle app:deploy -PsvnUrl=http://xxx'指定svn url"
+			return
+		}
 		def deployDir = baseDeploy + project.name
 		def tomcatDir = baseTomcat + project.name
 		ssh.run {
@@ -241,7 +269,7 @@ subprojects {
 					}
 				}
 				println "去除ip限制"
-				execute "sed -i 's/^uc_api_pass_ips=.*\$/uc_api_pass_ips=/' $deployRootConfDir/myconfig.properties"
+				execute "sed -i 's@^uc_api_pass_ips=.*\$@uc_api_pass_ips=@' $deployRootConfDir/myconfig.properties"
 			}
 		}
 	}
@@ -250,7 +278,7 @@ subprojects {
 		description '不执行任何实际的布署工作，通过dependsOn启动其它任务'
 		println "布署完成"
 	}
-
+	deployCode.dependsOn getSvnUrl
 	stopTomcat.dependsOn deployCode
 	startTomcat.dependsOn stopTomcat
 	deploy.dependsOn startTomcat
