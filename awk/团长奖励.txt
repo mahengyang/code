@@ -1,0 +1,45 @@
+BEGIN {
+	FS=","
+
+  a[1] = "ykfgsqb5wv67hqi0wbwi8hqktr00aejr"
+  a[5] = "st54qs04vp8gzopsspzzcmrx5g5ahxqp"
+  a[10] = "z3y385f6z361fgi7lmju0t0lgu8r2obn"
+  a[50] = "4dvhgmv4nqeo170bcvzu5rr3oi5bk6yb"
+
+  levelNumber = asorti(a,levels)
+  for(i=levelNumber;i>0;i--){
+    levels[i] = levels[i] + 0
+  }
+  levelNumber = asort(levels,levels)
+}
+
+function repeat(username,taskCode,times){
+	if(times <= 0)
+		return
+
+	for(i=0; i<times; i++)
+		print taskCode","username
+}
+
+function control(username,number){
+  remainder = number
+  for(j=levelNumber;j>0;j--){
+    level = levels[j]
+    # print j" level:"level" remainder:"remainder
+    if(remainder >= level){
+      times = int(remainder / level)
+      repeat(username, a[level], times)
+      remainder = remainder - level * times
+    }
+  }
+}
+
+{
+  if(NR==1){
+    print "任务码,用户名"
+  }else if(NR>1) {
+  	username = $3
+    number = int($4 / 10 + 0.5)
+    control(username,number)
+  }
+}
