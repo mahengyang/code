@@ -1,0 +1,75 @@
+buildscript {
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		classpath 'org.hidetake:gradle-ssh-plugin:1.0.1'
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'org.hidetake.ssh'
+
+group = "com.test"
+version = "1.0"
+ext{
+	// java文件编码方式设置为utf-8
+	compileJava.options.encoding = 'UTF-8'
+	compileTestJava.options.encoding = 'UTF-8'
+	sourceCompatibility = 1.6
+
+	awkFile = 'e:/puffin/code/awk/user_access.awk'
+	localHome = 'e:/puffin/R'
+	remoteHome = '/home/guozhiqiang'
+	logFile = '/Data/LOG/APP_LOG/user/user_app_log/2015-02-27/host-59_user_access.log.gz'
+	resultFile = "${remoteHome}/2015-02-27-host-59-uc-time.log"
+	// 远程服务器地址
+	remotes {
+	  server {
+	    host = '192.168.7.214'
+	    user = 'guozhiqiang'
+	    password = 'gzq123qwe'
+	  }
+	}
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "http://192.168.7.246:8081/nexus/content/repositories/thirdparty" }
+}
+
+dependencies {
+	compile(
+		"commons-httpclient:commons-httpclient:3.1",
+		"org.codehaus.groovy:groovy-all:2.3.6",
+		files('d:/software/asprise-ocr-java-5/aocr.jar')
+	)
+}
+
+task init << {
+	description '初始化目录'
+   sourceSets*.java.srcDirs*.each { it.mkdirs() }
+   sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+}
+
+task run(type: JavaExec, dependsOn: 'classes') {
+	classpath = sourceSets.main.runtimeClasspath
+	if(project.hasProperty('main')){
+		main = "com.user.${project.getProperty('main')}"
+	}
+}
+
+task logAnalyse << {
+	description '分析服务器上的日志'
+	ssh.run {
+		session(remotes.server) {
+			println "上传awk文件：$awkFile"
+			put(awkFile, "${remoteHome}")
+			execute "zcat $logFile | awk -f ${remoteHome}/${awkFile.split('/')[-1]} > $resultFile"
+			get(resultFile, localHome)
+			println "文件分析完毕"
+		}
+	}
+}
