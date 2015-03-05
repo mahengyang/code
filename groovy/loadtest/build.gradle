@@ -1,0 +1,261 @@
+buildscript {
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		classpath 'org.hidetake:gradle-ssh-plugin:1.0.1'
+	}
+}
+apply plugin: 'org.hidetake.ssh'
+
+// 全局属性设置
+ext {
+	// 远程服务器配置
+	projectName = 'user'
+	svnCodeDir = '/code_dir/xnsrc2/usercenter'
+	baseTomcat = "/opt/uc_server/tomcat_uc"
+	baseDeploy = "/Data/WEB_APP/uc_web"
+	deployRoot = "ROOT"
+	deployRootConf = "ROOT_conf"
+	ucWarPath = '/sleven/uc/app.war'
+	maven = '/home/maven/bin/mvn'
+	javaPath = '/opt/java/jdk1.6.0_43'
+	javaOpts = [
+			"-server -d64 -Djava.awt.headless=true",
+			"-Xms2G -Xmx2G -Xmn700m -XX:PermSize=128m -XX:MaxPermSize=512m",
+			"-XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection",
+			"-XX:CMSMaxAbortablePrecleanTime=5000 -XX:CMSInitiatingOccupancyFraction=80",
+			"-XX:+DisableExplicitGC -XX:+CMSClassUnloadingEnabled",
+			"-XX:+PrintGCDetails -XX:+PrintGCTimeStamps",
+			"-Djava.net.preferIPv4Stack=true",
+			"-Dorg.apache.catalina.session.StandardSession.ACTIVITY_CHECK=true",
+			"-Dcom.sun.management.jmxremote",
+			"-Dcom.sun.management.jmxremote.port=8060",
+			"-Dcom.sun.management.jmxremote.ssl=false",
+			"-Dcom.sun.management.jmxremote.authenticate=false",
+	]
+	replaceConfFile = ['cas.properties',
+                       'domain.properties',
+                       'myconfig.properties',
+                       'qianwang_pay.properties',
+                       'merchantinterfaceurl.properties']
+	// 域名替换
+	replaceUrl = [
+					'hyip:8080' : 'www.qianbao666.com',
+					'cas:5050' : 'passport.qianbao666.com',
+					'cas:5443' : 'passport.qianbao666.com',
+					'user:7070' : 'user.qianbao666.com',
+					'user:7090' : 'user.qianbao666.com',
+					'auc:9040' : 'leipai.qianbao666.com',
+					'message:7085' : 'message.qianbao66.com',
+					'message:7080' : 'message.ba.qianbao66.com',
+					'usercenter:5060' : 'www.qianwang365.com/uc',
+					'help:8080' : 'help.qianbao666.com',
+					'bc:8080' : 'bc.qianbao666.com',
+					'qhb:8080' : 'qhb.qianbao666.com',
+					'car:8888' : 'car.qianbao666.com',
+					'app:8080' : 'www.qianwang365.com',
+					'app:8443' : 'www.qianwang365.com',
+				  ]
+
+}
+
+// 远程服务器地址
+remotes {
+	serverUser {
+		host = '192.168.7.108'
+		user = 'root'
+		password = 'qw365qb666'
+	}
+
+	serverSvn {
+		host = '192.168.7.118'
+		user = 'xushiqing'
+		password = 'xushiqing113'
+	}
+}
+
+
+// 检查gradle命令行中是否包含指定的任务
+def needStart(String taskName){
+	def tmp = []
+	tmp.add taskName
+	needStart(tmp)
+}
+def needStart(ArrayList taskNames){
+	def start = false
+	project.gradle.startParameter.taskNames.each{ command ->
+		taskNames.each{ taskName ->
+			if(command.contains(taskName)){
+				start = true
+				return
+			}
+		}
+	}
+	return start
+}
+
+def getSvnUrl(){
+	if(!project.hasProperty('svnUrl')){
+		println "svn url获取失败，请用'gradle app:deploy -PsvnUrl=http://xxx'指定svn url"
+		return
+	}
+	def branchName = project.getProperty('svnUrl').split('/')[-1]
+	if(branchName == 'trunk'){
+		branchName = "trunk"
+	}else{
+		branchName = "branches/${branchName}"
+	}
+	return "$svnCodeDir/$branchName"
+}
+
+task stopTomcat << {
+	description '关闭远程服务器上的tomcat'
+	def tomcatDir = baseTomcat
+	ssh.run {
+		session(remotes.serverUser) {
+			println "准备关闭$tomcatDir"
+			def pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
+			if(pid == ''){
+				println "$tomcatDir 没有运行"
+				return
+			}
+			if(pid != ''){
+				if(pid.split('\n').size() > 1){
+					prinln "根据 $tomcatDir 查询到的进程不只一个，无法确定要关闭哪一个"
+					return
+				}
+				execute "kill -9 $pid"
+			}
+			println "$tomcatDir 已经关闭"
+		}
+	}
+}
+
+task startTomcat << {
+	description '启动远程服务器上的tomcat'
+	def tomcatDir = baseTomcat
+	def deployDir = baseDeploy
+	ssh.run {
+		session(remotes.serverUser) {
+			def pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
+			if(pid != ''){
+				println "$tomcatDir 正在运行，pid=$pid 请关闭后再启动"
+				return
+			}
+			def tomcatLog = "$tomcatDir/logs/catalina.out"
+			execute "echo > $tomcatLog"
+			println "启动$tomcatDir"
+			def startCommand = [
+					"export CATALINA_HOME=$tomcatDir",
+					"export JAVA_HOME=$javaPath",
+					"export JRE_HOME=$javaPath",
+					"export PATH=\$PATH:$javaPath/bin",
+					"export LD_LIBRARY_PATH=/usr/local/lib",
+					"export CONF_DIR=$deployDir/$deployRootConf",
+					"export CLASSPATH=$javaPath/lib:\$CONF_DIR",
+					"export JAVA_OPTS='${javaOpts.join(' ')}'",
+					"$tomcatDir/bin/startup.sh"
+			]
+			println(execute("${startCommand.join(' && ')}"))
+			pid = execute "ps aux | grep $tomcatDir | grep -v grep | awk '{print \$2}'"
+			if(pid != ''){
+				println "$tomcatDir 启动成功"
+			}
+		}
+	}
+}
+
+task compileCode << {
+	description '更新svn，编译打包'
+
+	ssh.run {
+		session(remotes.serverSvn) {
+			def branchDir = getSvnUrl()
+			def warPath = "$branchDir/app/target/app.war"
+
+			def exists = execute "[ -d $branchDir ] && echo yes || echo no"
+			if(exists == 'yes'){
+				println "svn update,服务器上已经存在此分支"
+				execute "svn up $branchDir"
+			}else{
+				println "svn checkout,服务器上不存在此分支"
+				execute "svn co $svnUrl $branchDir"
+			}
+			println "svn代码准备完完毕，下面开始编译"
+			def mavenCompile = [
+					"cd $branchDir",
+					"export JAVA_HOME=$javaPath",
+					"$maven clean install -Dmaven.test.skip=true"
+			]
+			execute mavenCompile.join(' && ')
+
+			exists = execute "[ -f $warPath ] && echo yes || echo no"
+			if(exists == 'no'){
+				println "不存在$warPath 编译失败"
+				return
+			}
+			println "复制war包到user服务器"
+			execute "scp $warPath root@192.168.7.108:/sleven/uc/"
+		}
+	}
+}
+
+task deployCode << {
+	description '解压war包，修改配置文件'
+
+	def deployRootDir = "$baseDeploy/$deployRoot"
+	def deployRootConfDir = "$baseDeploy/$deployRootConf"
+	def warPath = ucWarPath
+	def propertiesPath = "${getSvnUrl()}/common/src/main/resources/*.properties"
+	ssh.run {
+		session(remotes.serverUser) {
+			println "准备app工程发布目录"
+			execute "[ -d $deployRootDir ] || mkdir -p $deployRootDir"
+			execute "[ -d $deployRootConfDir ] || mkdir -p $deployRootConfDir"
+			execute "rm -rf $deployRootDir/*"
+			execute "rm -rf $deployRootConfDir/*"
+			println "解压 $warPath 到发布目录 $deployRootDir"
+			execute "cd $deployRootDir && $javaPath/bin/jar -xvf $warPath"
+			println "准备配置文件，域名替换"
+			execute "scp ${remotes.serverSvn.user}@${remotes.serverSvn.host}:$propertiesPath $deployRootConfDir"
+			replaceConfFile.each { confFile ->
+				replaceUrl.each{ key,value ->
+					execute "sed -i 's@$key@'$value'@g' $deployRootConfDir/$confFile"
+				}
+			}
+			
+			println "修改redis"
+			execute "sed -i 's@192.168.7.153@192.168.7.106@g' $deployRootConfDir/redis.properties"
+			
+			println "修改mongodb"
+			execute "sed -i 's@192.168.7.154@192.168.7.218@g' $deployRootConfDir/mongodb.properties"
+			
+			println "修改jdbc"
+			// 使用execute执行sed使用正则表达式有问题，所以用groovy替换
+			def jdbcFile = execute("cat $deployRootConfDir/jdbc.properties")
+			jdbcFile = jdbcFile.replaceAll(/\r\n/,"\n")
+			jdbcFile = jdbcFile.replaceAll("3306/hyip","3306/xnhyip")
+			jdbcFile = jdbcFile.replaceAll("192.168.7.154","192.168.7.240")
+			jdbcFile = jdbcFile.replaceAll("3306/qianwang365","3306/xnqianwang")
+			jdbcFile = jdbcFile.replaceAll(/password=.*\n/,"password=654321\n")
+			jdbcFile = jdbcFile.replaceAll(/username=.*\n/,"username=root\n")
+			jdbcFile = jdbcFile.replace('read.jdbc.url=jdbc:mysql://192.168.7.240',"read.jdbc.url=jdbc:mysql://192.168.7.3")
+			execute "cat << EOF > $deployRootConfDir/jdbc.properties\n$jdbcFile"
+
+			println "去除ip限制"
+			execute "sed -i 's@^uc_api_pass_ips=.*\$@uc_api_pass_ips=@' $deployRootConfDir/myconfig.properties"
+		}
+	}
+}
+
+task deploy << {
+	description '不执行任何实际的布署工作，通过dependsOn启动其它任务'
+	println "布署完成"
+}
+deployCode.dependsOn compileCode
+stopTomcat.dependsOn deployCode
+startTomcat.dependsOn stopTomcat
+deploy.dependsOn startTomcat
+deployCode.onlyIf{ return needStart('deploy') }
+compileCode.onlyIf{ return needStart('deploy') }
