@@ -14,4 +14,4 @@
   :dev-dependencies [[lein-ring "0.8.11"]]
   :main hello.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:dev {:plugins [[cider/cider-nrepl "0.9.1"]]}})
