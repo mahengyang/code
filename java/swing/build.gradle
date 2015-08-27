@@ -30,7 +30,7 @@ task init << {
 	sourceSets*.resources.srcDirs*.each { it.mkdirs() }
 }
 
-task run(type: JavaExec, dependsOn: 'classes') {
+task go(type: JavaExec, dependsOn: 'classes') {
 	classpath = sourceSets.main.runtimeClasspath
 	if(project.hasProperty('main')){
 		main = "com.ma.${project.getProperty('main')}"
