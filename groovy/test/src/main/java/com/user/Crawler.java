@@ -29,13 +29,14 @@ public class Crawler {
                 src = src.replace("n5/jfs","n1/jfs");
                 System.out.println(src);
             }
-            Elements elementsDesc = doc.select("div.formwork_img img");
+//            Elements elementsDesc = doc.select("div.formwork_img img");
+            Elements elementsDesc = doc.select("div#J-detail-content");
             Iterator<Element> itDesc = elementsDesc.iterator();
             System.out.println("商品图文详情：");
             while (itDesc.hasNext()){
                 Element element = itDesc.next();
-                String src = element.attr("src");
-                System.out.println(src);
+//                String src = element.attr("data-lazyload");
+                System.out.println(element.html());
             }
 
         }catch (IOException e){
