@@ -1,0 +1,37 @@
+plugins {
+    id "us.kirchmeier.capsule" version "1.0.1"
+}
+
+apply plugin: 'java'
+group = "com.ma"
+version = "1.0"
+ext{
+    sourceCompatibility = 1.8
+	// java文件编码方式设置为utf-8
+	compileJava.options.encoding = 'UTF-8'
+	compileTestJava.options.encoding = 'UTF-8'
+}
+
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+	compile(
+		    'redis.clients:jedis:2.4.2'
+	)
+}
+
+task run(type: JavaExec, dependsOn: 'classes') {
+	classpath = sourceSets.main.runtimeClasspath
+    main = "com.ma.Main"
+}
+
+task capsule(type: FatCapsule) {
+    applicationClass 'com.ma.Main'
+    capsuleManifest {
+        minJavaVersion = '1.6.0'
+    }
+}
