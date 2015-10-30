@@ -29,6 +29,7 @@ public class Main {
             commandLine = parser.parse( options, args );
         } catch (ParseException e) {
             System.out.println("参数解析错误");
+            System.out.println(e);
             System.exit(1);
         }
         if (commandLine.hasOption("h")) {
